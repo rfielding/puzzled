@@ -36,13 +36,53 @@ interface CubeState {
        ur, ub
        ub, ul
      */
+    adjacencies: Map<string, string[]>;
     stickers: Map<string, string>;
+    facePeriod: number;
+    faceCount: number;
     moves: Move[];
+}
+
+function NewCubeState(): CubeState {
+    // counter clockwise adjacencies.
+    const adjacencies = new Map<string, string[]>([
+        ["u", ["f", "r", "b", "l"]],
+        ["r", ["u", "f", "d", "b"]],
+        ["f", ["u", "l", "d", "r"]],
+        ["d", ["f", "l", "b", "r"]],
+        ["l", ["u", "b", "d", "f"]],
+        ["b", ["u", "r", "d", "l"]],
+    ]);
+    const facePeriod = adjacencies.get("u")?.length ?? 0; // Use .get() for Map lookup
+    const faceCount = adjacencies.size; // Map has a .size property
+    var stickers = new Map<string, string>();
+    // from here, the code should not be 3x3x3 specific
+    for( var f in adjacencies.keys() ) {
+        var faces = adjacencies.get(f);
+        if( !faces ) {
+            console.error("face "+f+" not found in adjacencies");
+        } else {
+            for( var i = 0; i < facePeriod; i++ ) {
+                var corner = f + faces[i] + faces[(i+1)%faces.length];
+                var edge = f + faces[i];
+                stickers.set(f,f);
+                stickers.set(edge,f);
+                stickers.set(corner,f);
+            }    
+        }
+    }
+    return {
+        adjacencies: adjacencies,
+        stickers: stickers,
+        facePeriod: facePeriod,
+        faceCount: faceCount,
+        moves: []
+    };
 }
 
 const CubeCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [cubeState, setCubeState] = useState({}); // Placeholder for cube logic
+  const [cubeState, setCubeState] = useState(NewCubeState()); // Placeholder for cube logic
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -117,3 +157,4 @@ const CubeCanvas: React.FC = () => {
 };
 
 export default CubeCanvas;
+
