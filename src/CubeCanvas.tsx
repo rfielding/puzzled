@@ -41,6 +41,7 @@ interface CubeState {
     facePeriod: number;
     faceCount: number;
     moves: Move[];
+    colors: Map<string,string>;
 }
 
 function NewCubeState(): CubeState {
@@ -57,17 +58,19 @@ function NewCubeState(): CubeState {
     const faceCount = adjacencies.size; // Map has a .size property
     var stickers = new Map<string, string>();
     // from here, the code should not be 3x3x3 specific
-    for( var f in adjacencies.keys() ) {
+    for( let f of adjacencies.keys() ) {
+        //console.log("!!face "+f);
         var faces = adjacencies.get(f);
         if( !faces ) {
             console.error("face "+f+" not found in adjacencies");
         } else {
             for( var i = 0; i < facePeriod; i++ ) {
-                var corner = f + faces[i] + faces[(i+1)%faces.length];
+                var corner = f + faces[(i+1)%faces.length] + faces[i];
                 var edge = f + faces[i];
                 stickers.set(f,f);
                 stickers.set(edge,f);
                 stickers.set(corner,f);
+                //console.log("stickering "+f+" "+edge+" "+corner);
             }    
         }
     }
@@ -76,7 +79,15 @@ function NewCubeState(): CubeState {
         stickers: stickers,
         facePeriod: facePeriod,
         faceCount: faceCount,
-        moves: []
+        moves: [],
+        colors: new Map<string,string>([
+            ["u", "white"],
+            ["r", "green"],
+            ["f", "red"],
+            ["d", "yello"],
+            ["l", "blue"],
+            ["b", "orange"],
+        ]),
     };
 }
 
@@ -118,41 +129,128 @@ const CubeCanvas: React.FC = () => {
 
     // Example 2D cube representation (top + front + right)
     const size = 50;
-    const offsetX = 150;
-    const offsetY = 100;
 
     ctx.strokeStyle = "black";
     ctx.lineWidth = 2;
 
-    // Top face
-    drawSquare(ctx, offsetX, offsetY, size);
-    drawSquare(ctx, offsetX + size, offsetY, size);
-    drawSquare(ctx, offsetX + 2 * size, offsetY, size);
+    if(cubeState.facePeriod === 4 && cubeState.faceCount === 6) {
+        drawSticker(
+            ctx, 
+            cubeState, 
+            "flu",
+            2*size, 2*size, 
+            3*size, 2*size,
+            3*size, 3*size,
+            2*size, 3*size, 
+        );
+        drawSticker(
+            ctx,
+            cubeState,
+            "fu",
+            3*size,2*size,
+            4*size,2*size,
+            4*size,3*size,
+            3*size,3*size,
+        );
+        drawSticker(
+            ctx,
+            cubeState,
+            "fur",
+            4*size,2*size,
+            5*size,2*size,
+            5*size,3*size,
+            4*size,3*size,
+        );
 
-    // Front face
-    drawSquare(ctx, offsetX, offsetY + size, size);
-    drawSquare(ctx, offsetX + size, offsetY + size, size);
-    drawSquare(ctx, offsetX + 2 * size, offsetY + size, size);
+        drawSticker(
+            ctx,
+            cubeState,
+            "fl",
+            2*size, 3*size,
+            3*size, 3*size,
+            3*size, 4*size,
+            2*size, 4*size,
+        );
+        drawSticker(
+            ctx,
+            cubeState,
+            "f",
+            3*size, 3*size,
+            4*size, 3*size,
+            4*size, 4*size,
+            3*size, 4*size,
+        );
+        drawSticker(
+            ctx,
+            cubeState,
+            "fr",
+            4*size, 3*size,
+            5*size, 3*size,
+            5*size, 4*size,
+            4*size, 4*size,
+        );
 
-    // Right face
-    drawSquare(ctx, offsetX + 2 * size, offsetY + size, size);
-    drawSquare(ctx, offsetX + 2 * size, offsetY + 2 * size, size);
-    drawSquare(ctx, offsetX + 2 * size, offsetY + 3 * size, size);
+        drawSticker(
+            ctx,
+            cubeState,
+            "fdl",
+            2*size, 4*size,
+            3*size, 4*size,
+            3*size, 5*size,
+            2*size, 5*size,
+        );
+        drawSticker(
+            ctx,
+            cubeState,
+            "fd",
+            3*size, 4*size,
+            4*size, 4*size,
+            4*size, 5*size,
+            3*size, 5*size,
+        );
+        drawSticker(
+            ctx,
+            cubeState,
+            "frd",
+            4*size, 4*size,
+            5*size, 4*size,
+            5*size, 5*size,
+            4*size, 5*size,
+        );
+    }
+
   };
-
-  const drawSquare = (
+  const drawSticker = (
     ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    size: number
+    cube: CubeState,
+    sticker: string,
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    x3: number,
+    y3: number,
   ) => {
+    var color = cube.stickers.get(sticker);
+    if(color === undefined) {
+        console.error("sticker "+sticker+" not found in stickers");
+        console.error(cube.stickers);
+    }
+    ctx.strokeStyle = "black";
+    ctx.fillStyle = cube.colors.get(color ?? "gray") ?? "black";
     ctx.beginPath();
-    ctx.rect(x, y, size, size);
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.lineTo(x3, y3);
+    ctx.fill();
     ctx.stroke();
   };
 
   return (
-    <canvas ref={canvasRef} width={400} height={300} style={{ border: "1px solid black" }} />
+    <canvas ref={canvasRef} width={400} height={400} style={{ border: "1px solid black" }} />
   );
 };
 
