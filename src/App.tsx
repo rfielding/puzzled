@@ -9,7 +9,7 @@ function App() {
 
   return (
     <>
-      <h2>Keyboard Rubiks Cube</h2>
+      <h2><a href="https://github.com/rfielding/puzzled">https://github.com/rfielding/puzzled</a></h2>
       <ul>
         <li>turn faces: "r", "u", "f", "d", "l", "b", and "/" for negative turns like "/r"</li>
         <li>Face names are: right,up,front,down,left, and back</li>
