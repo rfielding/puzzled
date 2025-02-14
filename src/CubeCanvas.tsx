@@ -727,7 +727,7 @@ const CubeCanvas: React.FC = () => {
 
 
   return (
-    <canvas ref={canvasRef} width={550} height={470} style={{ border: "1px solid black" }} />
+    <canvas ref={canvasRef} width={550} height={510} style={{ border: "1px solid black" }} />
   );
 };
 
