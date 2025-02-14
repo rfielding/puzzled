@@ -127,22 +127,16 @@ function Move(cube: CubeState, event: KeyboardEvent) {
             }
             if(["u", "r", "f", "d", "l", "b"].includes(oldk.toLowerCase())) {
                 var lk = oldk.toLowerCase();
+                var turn = Turn;
+                if(oldk === oldk.toUpperCase()) {
+                    turn = TurnAll;
+                }
                 if(!oldnegate) {
-                    if(oldk === oldk.toUpperCase()) {
-                        TurnAll(cube, lk);
-                        TurnAll(cube, lk);
-                        TurnAll(cube, lk);
-                    } else {
-                        Turn(cube, lk);
-                        Turn(cube, lk);
-                        Turn(cube, lk);        
-                    }
+                    turn(cube, lk);
+                    turn(cube, lk);
+                    turn(cube, lk);
                 } else {
-                    if(oldk === oldk.toUpperCase()) {
-                        TurnAll(cube, lk);
-                    } else {
-                        Turn(cube, lk);
-                    }
+                    turn(cube, lk);
                 }
             }
         }
@@ -156,22 +150,16 @@ function Move(cube: CubeState, event: KeyboardEvent) {
             prevk = cube.moves[cube.moves.length-2];
         }
         var lk = k.toLowerCase();
+        var turn = Turn;
+        if( k === k.toUpperCase() ){
+            turn = TurnAll;
+        }
         if(prevk === "/") {
-            if(k === k.toUpperCase()) {
-                Turn(cube, lk);
-                Turn(cube, lk);
-                Turn(cube, lk);
-            } else {
-                TurnAll(cube, lk);
-                TurnAll(cube, lk);
-                TurnAll(cube, lk);
-            }
+            turn(cube,lk);
+            turn(cube,lk);
+            turn(cube,lk);
         } else {
-            if(k === k.toUpperCase()) {
-                TurnAll(cube, lk);
-            } else {
-                Turn(cube, lk);
-            }
+            turn(cube,lk);
         }
     }
 }
