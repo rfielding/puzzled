@@ -77,11 +77,13 @@ function Turn(cube: CubeState, face: string) {
         var i = cube.adjacencies.get(face)![n];
         var j = cube.adjacencies.get(face)![(n+1)%cube.facePeriod];
         var k = cube.adjacencies.get(face)![(n+2)%cube.facePeriod];
+
         swap(cube, face+j+i, face+k+j);
         swap(cube, i+face+j, j+face+k);
         swap(cube, j+i+face, k+j+face);
+
         swap(cube, face+i, face+j);
-        swap(cube, face+j, face+k);
+        swap(cube, i+face, j+face);
     }
 }
 
@@ -120,24 +122,23 @@ const CubeCanvas: React.FC = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Initialize Cube Draw
-    drawCube(ctx);
+    drawCube(ctx); // Re-draw cube on state update
 
-    // Keyboard event handler
     const handleKeyDown = (event: KeyboardEvent) => {
-      const key = event.key.toLowerCase();
-      if (["u", "r", "f", "d", "l", "b"].includes(key)) {
-        console.log(`Clockwise turn: ${key}`);
-        Turn(theCubeState, key);
-        updateCubeState(key);
-      } else if (key === "/") {
-        console.log("Counterclockwise mode activated. Press a face key.");
-      }
+        const key = event.key.toLowerCase();
+        if (["u", "r", "f", "d", "l", "b"].includes(key)) {
+            console.log(`Clockwise turn: ${key}`);
+            Turn(cubeState, key);
+            updateCubeState(key);
+        } else if (key === "/") {
+            console.log("Counterclockwise mode activated. Press a face key.");
+        }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+}, [cubeState]); // ✅ Depend on cubeState to trigger updates
+
 
  
 
