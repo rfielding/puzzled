@@ -206,7 +206,7 @@ const CubeCanvas: React.FC = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-}, [cubeState]); // ✅ Depend on cubeState to trigger updates
+  }, [cubeState]); // ✅ Depend on cubeState to trigger updates
 
 
  
@@ -261,6 +261,11 @@ const CubeCanvas: React.FC = () => {
     ctx.stroke();
   };
 
+  // yup! just draw every single sticker.
+  // if there is a short and explicit algorithm to 
+  // draw cubes via a short algorithm, then it will
+  // be easy to support other kinds of cubes.
+  // but for now, this is a few hours of work!
   const drawCubeView = (
     ctx: CanvasRenderingContext2D, 
     x: number,
