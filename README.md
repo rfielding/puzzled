@@ -1,9 +1,11 @@
 # Puzzled - Online Rubiks Cube
 
+https://rfielding.github.io/puzzled/index.html
+
 This is a simple 3x3x3 Rubiks cube.
 The point is to respond to keypresses immediately.
 That makes it less urgent to support high-level group theory statements.
-(ie: {f[ru], [[fr]3u]}, (rf)/(rf)).
+(ie: {f[ru]}, [[fr]3u]}, (rf)/(rf)).
 For now, there are no carriage turns required.
 Just backspace out if you made a mistake.
 The "/" is used because it's prefix. If I used prime afte face, then we would get odd behavior
