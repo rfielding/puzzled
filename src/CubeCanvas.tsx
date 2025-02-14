@@ -143,7 +143,11 @@ function Move(cube: CubeState, event: KeyboardEvent) {
         return;
     }
 
+    if(![" ","u", "r", "f", "d", "l", "b", "U","R","F","D","L","B", "/"].includes(k)) {
+        return;
+    }
     cube.moves.push(k);
+    
     if (["u", "r", "f", "d", "l", "b"].includes(k.toLowerCase())) {
         var prevk = undefined;
         if(cube.moves.length >= 1) {
@@ -708,13 +712,17 @@ const CubeCanvas: React.FC = () => {
             ["b","f"],
         ]));
 
+        ctx.font = "24px Arial";
+        ctx.fillStyle = "gray";
+        var lastChars = cubeState.moves.slice(-50).join("");
+        ctx.fillText(lastChars, 0*size, 10*size);
     }
 
   };
 
 
   return (
-    <canvas ref={canvasRef} width={600} height={500} style={{ border: "1px solid black" }} />
+    <canvas ref={canvasRef} width={600} height={5700} style={{ border: "1px solid black" }} />
   );
 };
 
