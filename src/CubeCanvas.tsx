@@ -5,37 +5,8 @@ interface Move {
     direction: number; // if negative, it's an inverse of face
 }
 
-/*
- A sticker location is a multichar name that maps to a single char
- destination. For example, for a simple 3x3x3 cube:
- - corners are 3 chars. 3 faces are clockwise named
- - edges are 2 chars. 2 faces on an edge
- - middle pieces are 1 char.
- */
+
 interface CubeState {
-    /*
-      example mappings involved in a u turn:
-        - ufl -> u
-        - ulb -> u
-        - ubr -> u
-        - urf -> u
-        - uf -> u
-        - ul -> u
-        - ub -> u
-        - ur -> u
-        - u -> u    (center, not movin here)
-
-      a single turn for a corner moves 3 stickers at a time per piece
-      a single turn for an edge move 2 stickers at a time per piece
-
-      swaps performced to turn u:
-       ufl, urf
-       urf, ubr
-       ulb, ubr
-       uf, ur
-       ur, ub
-       ub, ul
-     */
     adjacencies: Map<string, string[]>;
     stickers: Map<string, string>;
     facePeriod: number;
@@ -91,10 +62,58 @@ function NewCubeState(): CubeState {
     };
 }
 
+
+
+function swap(cube: CubeState, a: string, b: string) {
+    console.log("swapping "+a+" "+b);
+    var tmp = cube.stickers.get(a) ?? "black";
+    cube.stickers.set(a, cube.stickers.get(b) ?? "black");
+    cube.stickers.set(b, tmp);
+}
+
+function Turn(cube: CubeState, face: string) {
+    // walk face and swap stickers to get a turn
+    for(var n = 0; n < cube.facePeriod-1; n++) {
+        var i = cube.adjacencies.get(face)![n];
+        var j = cube.adjacencies.get(face)![(n+1)%cube.facePeriod];
+        var k = cube.adjacencies.get(face)![(n+2)%cube.facePeriod];
+        swap(cube, face+j+i, face+k+j);
+        swap(cube, i+face+j, j+face+k);
+        swap(cube, j+i+face, k+j+face);
+        swap(cube, face+i, face+j);
+        swap(cube, face+j, face+k);
+    }
+}
+
+var theCubeState = NewCubeState();
+
+function RenewCubeState() {
+    return {
+        adjacencies: theCubeState.adjacencies,
+        stickers: theCubeState.stickers,
+        facePeriod: theCubeState.facePeriod,
+        faceCount: theCubeState.faceCount,
+        moves: [],
+        colors: new Map<string,string>([
+            ["u", "white"],
+            ["r", "green"],
+            ["f", "red"],
+            ["d", "yellow"],
+            ["l", "blue"],
+            ["b", "orange"],
+        ]),
+    };
+}
+
 const CubeCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [cubeState, setCubeState] = useState(NewCubeState()); // Placeholder for cube logic
+  const [cubeState, setCubeState] = useState(RenewCubeState());
 
+  const updateCubeState = (move: string) => {
+    // Placeholder: Here you'd update the cube's internal representation
+    setCubeState((prev) => (RenewCubeState()));
+  };
+  
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -109,6 +128,7 @@ const CubeCanvas: React.FC = () => {
       const key = event.key.toLowerCase();
       if (["u", "r", "f", "d", "l", "b"].includes(key)) {
         console.log(`Clockwise turn: ${key}`);
+        Turn(theCubeState, key);
         updateCubeState(key);
       } else if (key === "/") {
         console.log("Counterclockwise mode activated. Press a face key.");
@@ -119,10 +139,7 @@ const CubeCanvas: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const updateCubeState = (move: string) => {
-    // Placeholder: Here you'd update the cube's internal representation
-    setCubeState((prev) => ({ ...prev, lastMove: move }));
-  };
+ 
 
   const drawSticker = (
     ctx: CanvasRenderingContext2D,
@@ -569,7 +586,7 @@ const CubeCanvas: React.FC = () => {
 
     // Example 2D cube representation (top + front + right)
     const size = 50;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 0.5;
 
     if(cubeState.facePeriod === 4 && cubeState.faceCount === 6) {
         drawCubeView(ctx,size+10,size+10,size,new Map<string,string>([
@@ -580,16 +597,25 @@ const CubeCanvas: React.FC = () => {
             ["l","l"],
             ["b","b"],
         ]));
-/*
+
         drawCubeView(ctx,2.75*size+10,-0.65*size,size/2,new Map<string,string>([
+            ["u","b"],
+            ["r","r"],
+            ["f","u"],
+            ["d","f"],
+            ["l","l"],
+            ["b","d"],
+        ]));
+
+        drawCubeView(ctx,2.75*size+10,6.5*size,size/2,new Map<string,string>([
             ["u","f"],
             ["r","r"],
             ["f","d"],
             ["d","b"],
             ["l","l"],
             ["b","u"],
-        ]));
-*/
+        ]));        
+
         drawCubeView(ctx,-0.6*size,3.0*size,size/2,new Map<string,string>([
             ["u","u"],
             ["r","f"],
@@ -613,7 +639,7 @@ const CubeCanvas: React.FC = () => {
 
 
   return (
-    <canvas ref={canvasRef} width={600} height={400} style={{ border: "1px solid black" }} />
+    <canvas ref={canvasRef} width={500} height={500} style={{ border: "1px solid black" }} />
   );
 };
 
