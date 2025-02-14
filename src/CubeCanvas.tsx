@@ -124,429 +124,12 @@ const CubeCanvas: React.FC = () => {
     setCubeState((prev) => ({ ...prev, lastMove: move }));
   };
 
-  const drawCube = (ctx: CanvasRenderingContext2D) => {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-    // Example 2D cube representation (top + front + right)
-    const size = 50;
-
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 2;
-
-    if(cubeState.facePeriod === 4 && cubeState.faceCount === 6) {
-        drawSticker(
-            ctx, 
-            cubeState, 
-            "flu",
-            2*size, 2*size, 
-            3*size, 2*size,
-            3*size, 3*size,
-            2*size, 3*size, 
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "fu",
-            3*size,2*size,
-            4*size,2*size,
-            4*size,3*size,
-            3*size,3*size,
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "fur",
-            4*size,2*size,
-            5*size,2*size,
-            5*size,3*size,
-            4*size,3*size,
-        );
-
-        drawSticker(
-            ctx,
-            cubeState,
-            "fl",
-            2*size, 3*size,
-            3*size, 3*size,
-            3*size, 4*size,
-            2*size, 4*size,
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "f",
-            3*size, 3*size,
-            4*size, 3*size,
-            4*size, 4*size,
-            3*size, 4*size,
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "fr",
-            4*size, 3*size,
-            5*size, 3*size,
-            5*size, 4*size,
-            4*size, 4*size,
-        );
-
-        drawSticker(
-            ctx,
-            cubeState,
-            "fdl",
-            2*size, 4*size,
-            3*size, 4*size,
-            3*size, 5*size,
-            2*size, 5*size,
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "fd",
-            3*size, 4*size,
-            4*size, 4*size,
-            4*size, 5*size,
-            3*size, 5*size,
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "frd",
-            4*size, 4*size,
-            5*size, 4*size,
-            5*size, 5*size,
-            4*size, 5*size,
-        );
-
-        var skew1 = 0.25;
-        //var skew2 = 0.5;
-
-        drawSticker(
-            ctx,
-            cubeState,
-            "ufl",
-            (2-skew1)*size, (2-skew1)*size,
-            (3)*size,       (2-skew1)*size,
-            (3)*size,        2*size,
-            (2)*size,        2*size,
-        );
-
-        drawSticker(
-            ctx,
-            cubeState,
-            "uf",
-            (3)*size, (2-skew1)*size,
-            (4)*size, (2-skew1)*size,
-            (4)*size,        2*size,
-            (3)*size,        2*size,
-        );
-
-        drawSticker(
-            ctx,
-            cubeState,
-            "urf",
-            (4)*size, (2-skew1)*size,
-            (5+skew1)*size, (2-skew1)*size,
-            (5)*size,        2*size,
-            (4)*size,        2*size,
-        );
-
-
-        drawSticker(
-            ctx,
-            cubeState,
-            "ul",
-            (2-2*skew1)*size, (2-2*skew1)*size,
-            (3)*size,       (2-2*skew1)*size,
-            (3)*size,        (2-skew1)*size,
-            (2-skew1)*size,  (2-skew1)*size,
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "u",
-            (3)*size, (2-2*skew1)*size,
-            (4)*size, (2-2*skew1)*size,
-            (4)*size,        (2-skew1)*size,
-            (3)*size,        (2-skew1)*size,
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "ur",
-            (4)*size, (2-2*skew1)*size,
-            (5+2*skew1)*size, (2-2*skew1)*size,
-            (5+skew1)*size, (2-skew1)*size,
-            (4)*size,        (2-skew1)*size,
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "ulb",
-            (2-3*skew1)*size, (2-3*skew1)*size,
-            (3)*size,         (2-3*skew1)*size,
-            (3)*size,         (2-2*skew1)*size,
-            (2-2*skew1)*size,   (2-2*skew1)*size,
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "ub",
-            (3)*size, (2-3*skew1)*size,
-            (4)*size, (2-3*skew1)*size,
-            (4)*size, (2-2*skew1)*size,
-            (3)*size, (2-2*skew1)*size,
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "ubr",
-            (4)*size, (2-3*skew1)*size,
-            (5+3*skew1)*size, (2-3*skew1)*size,
-            (5+2*skew1)*size, (2-2*skew1)*size,
-            (4)*size, (2-2*skew1)*size,
-        );
-
-        drawSticker(
-            ctx,
-            cubeState,
-            "dlf",
-            (2)*size, (5)*size,
-            (3)*size,       (5)*size,
-            (3)*size,        (5+skew1)*size,
-            (2-skew1)*size,  (5+skew1)*size,
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "df",
-            (3)*size, (5)*size,
-            (4)*size, (5)*size,
-            (4)*size,        (5+skew1)*size,
-            (3)*size,        (5+skew1)*size,
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "dfr",
-            (4)*size, (5)*size,
-            (5)*size, (5)*size,
-            (5+skew1)*size,        (5+skew1)*size,
-            (4)*size, (5+skew1)*size,
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "dl",
-            (2-skew1)*size, (5+skew1)*size,
-            (3)*size,       (5+skew1)*size,
-            (3)*size,        (5+2*skew1)*size,
-            (2-2*skew1)*size,  (5+2*skew1)*size,
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "d",
-            (3)*size, (5+skew1)*size,
-            (4)*size, (5+skew1)*size,
-            (4)*size,        (5+2*skew1)*size,
-            (3)*size,        (5+2*skew1)*size,
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "dr",
-            (4)*size, (5+skew1)*size,
-            (5+skew1)*size, (5+skew1)*size,
-            (5+2*skew1)*size,        (5+2*skew1)*size,
-            (4)*size, (5+2*skew1)*size,
-        );
-
-        drawSticker(
-            ctx,
-            cubeState,
-            "dbl",
-            (2-2*skew1)*size, (5+2*skew1)*size,
-            (3)*size,       (5+2*skew1)*size,
-            (3)*size,        (5+3*skew1)*size,
-            (2-3*skew1)*size,  (5+3*skew1)*size,
-        );
-        drawSticker(
-            ctx,
-            cubeState,
-            "db",
-            (3)*size, (5+2*skew1)*size,
-            (4)*size, (5+2*skew1)*size,
-            (4)*size,        (5+3*skew1)*size,
-            (3)*size,        (5+3*skew1)*size,
-        );
-        drawSticker(
-            ctx, cubeState,
-            "drb",
-            (4)*size, (5+2*skew1)*size,
-            (5+2*skew1)*size, (5+2*skew1)*size,
-            (5+3*skew1)*size,        (5+3*skew1)*size,
-            (4)*size,        (5+3*skew1)*size,
-        );
-
-        drawSticker(
-            ctx, cubeState,
-            "lbu",
-            (2-3*skew1)*size, (2-3*skew1)*size,
-            (2-2*skew1)*size, (2-2*skew1)*size,
-            (2-2*skew1)*size, (3)*size,
-            (2-3*skew1)*size, (3)*size,
-        );
-        drawSticker(
-            ctx, cubeState,
-            "lu",
-            (2-2*skew1)*size, (2-2*skew1)*size,
-            (2-skew1)*size, (2-skew1)*size,
-            (2-skew1)*size, (3)*size,
-            (2-2*skew1)*size, (3)*size,
-        );
-        drawSticker(
-            ctx, cubeState,
-            "luf",
-            (2-skew1)*size, (2-skew1)*size,
-            (2)*size, (2)*size,
-            (2)*size, (3)*size,
-            (2-skew1)*size, (3)*size,
-        );
-        drawSticker(
-            ctx, cubeState,
-            "lb",
-            (2-3*skew1)*size, (3)*size,
-            (2-2*skew1)*size, (3)*size,
-            (2-2*skew1)*size, (4)*size,
-            (2-3*skew1)*size, (4)*size,
-        );
-        drawSticker(
-            ctx, cubeState,
-            "l",
-            (2-2*skew1)*size, (3)*size,
-            (2-skew1)*size, (3)*size,
-            (2-skew1)*size, (4)*size,
-            (2-2*skew1)*size, (4)*size,
-        );
-        drawSticker(
-            ctx, cubeState,
-            "lf",
-            (2-skew1)*size, (3)*size,
-            (2)*size, (3)*size,
-            (2)*size, (4)*size,
-            (2-skew1)*size, (4)*size,
-        );
-        drawSticker(
-            ctx, cubeState,
-            "ldb",
-            (2-3*skew1)*size, (4)*size,
-            (2-2*skew1)*size, (4)*size,
-            (2-2*skew1)*size, (5+2*skew1)*size,
-            (2-3*skew1)*size, (5+3*skew1)*size,
-        );
-        drawSticker(
-            ctx, cubeState,
-            "ld",
-            (2-2*skew1)*size, (4)*size,
-            (2-skew1)*size, (4)*size,
-            (2-skew1)*size, (5+skew1)*size,
-            (2-2*skew1)*size, (5+2*skew1)*size,
-        );
-        drawSticker(
-            ctx, cubeState,
-            "lfd",
-            (2-skew1)*size, (4)*size,
-            (2)*size, (4)*size,
-            (2)*size, (5)*size,
-            (2-skew1)*size, (5+skew1)*size,
-        );
-
-        drawSticker(
-            ctx, cubeState,
-            "rfu",
-            (5)*size, (2)*size,
-            (5+skew1)*size, (2-skew1)*size,
-            (5+skew1)*size, (3)*size,
-            (5)*size, (3)*size,
-        );
-
-        drawSticker(
-            ctx, cubeState,
-            "ru",
-            (5+skew1)*size, (2-skew1)*size,
-            (5+2*skew1)*size, (2-2*skew1)*size,
-            (5+2*skew1)*size, (3)*size,
-            (5+skew1)*size, (3)*size,
-        );
-        drawSticker(
-            ctx, cubeState,
-            "rub",
-            (5+2*skew1)*size, (2-2*skew1)*size,
-            (5+3*skew1)*size, (2-3*skew1)*size,
-            (5+3*skew1)*size, (3)*size,
-            (5+2*skew1)*size, (3)*size,
-        );
-
-        drawSticker(
-            ctx, cubeState,
-            "rf",
-            (5)*size, (3)*size,
-            (5+skew1)*size, (3)*size,
-            (5+skew1)*size, (4)*size,
-            (5)*size, (4)*size,
-        );
-
-        drawSticker(
-            ctx, cubeState,
-            "r",
-            (5+skew1)*size, (3)*size,
-            (5+2*skew1)*size, (3)*size,
-            (5+2*skew1)*size, (4)*size,
-            (5+skew1)*size, (4)*size,
-        );
-
-        drawSticker(
-            ctx, cubeState,
-            "rb",
-            (5+2*skew1)*size, (3)*size,
-            (5+3*skew1)*size, (3)*size,
-            (5+3*skew1)*size, (4)*size,
-            (5+2*skew1)*size, (4)*size,
-        );
-
-        drawSticker(
-            ctx, cubeState,
-            "rdf",
-            (5)*size, (4)*size,
-            (5+skew1)*size, (4)*size,
-            (5+skew1)*size, (5+skew1)*size,
-            (5)*size, (5)*size,
-        );
-
-        drawSticker(
-            ctx, cubeState,
-            "rd",
-            (5+skew1)*size, (4)*size,
-            (5+2*skew1)*size, (4)*size,
-            (5+2*skew1)*size, (5+2*skew1)*size,
-            (5+skew1)*size, (5+skew1)*size,
-        );
-
-        drawSticker(
-            ctx, cubeState,
-            "rbd",
-            (5+2*skew1)*size, (4)*size,
-            (5+3*skew1)*size, (4)*size,
-            (5+3*skew1)*size, (5+3*skew1)*size,
-            (5+2*skew1)*size, (5+2*skew1)*size,
-        );
-    }
-
-  };
   const drawSticker = (
     ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
     cube: CubeState,
+    remap: Map<string,string>,
     sticker: string,
     x0: number,
     y0: number,
@@ -557,6 +140,24 @@ const CubeCanvas: React.FC = () => {
     x3: number,
     y3: number,
   ) => {
+
+    // lol. allow cube rotations to be shown like this.
+    if(sticker.length === 1) {
+        sticker = remap.get(sticker) ?? sticker;
+    } else if (sticker.length === 2) {
+        var f1 = sticker[0];
+        var f2 = sticker[1];
+        sticker = remap.get(f1) ?? f1;
+        sticker += remap.get(f2) ?? f2;
+    } else if (sticker.length === 3) {  
+        var f1 = sticker[0];
+        var f2 = sticker[1];
+        var f3 = sticker[2];
+        sticker = remap.get(f1) ?? f1;
+        sticker += remap.get(f2) ?? f2;
+        sticker += remap.get(f3) ?? f3;
+    }
+
     var color = cube.stickers.get(sticker);
     if(color === undefined) {
         console.error("sticker "+sticker+" not found in stickers");
@@ -565,16 +166,454 @@ const CubeCanvas: React.FC = () => {
     ctx.strokeStyle = "black";
     ctx.fillStyle = cube.colors.get(color ?? "gray") ?? "black";
     ctx.beginPath();
-    ctx.moveTo(x0, y0);
-    ctx.lineTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.lineTo(x3, y3);
+    ctx.moveTo(x+x0, y+y0);
+    ctx.lineTo(x+x1, y+y1);
+    ctx.lineTo(x+x2, y+y2);
+    ctx.lineTo(x+x3, y+y3);
     ctx.fill();
     ctx.stroke();
   };
 
+  const drawCubeView = (
+    ctx: CanvasRenderingContext2D, 
+    x: number,
+    y: number,
+    size: number,
+    remap: Map<string,string>,
+  ) => {
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "flu",
+        2*size, 2*size, 
+        3*size, 2*size,
+        3*size, 3*size,
+        2*size, 3*size, 
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "fu",
+        3*size,2*size,
+        4*size,2*size,
+        4*size,3*size,
+        3*size,3*size,
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "fur",
+        4*size,2*size,
+        5*size,2*size,
+        5*size,3*size,
+        4*size,3*size,
+    );
+
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "fl",
+        2*size, 3*size,
+        3*size, 3*size,
+        3*size, 4*size,
+        2*size, 4*size,
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "f",
+        3*size, 3*size,
+        4*size, 3*size,
+        4*size, 4*size,
+        3*size, 4*size,
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "fr",
+        4*size, 3*size,
+        5*size, 3*size,
+        5*size, 4*size,
+        4*size, 4*size,
+    );
+
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "fdl",
+        2*size, 4*size,
+        3*size, 4*size,
+        3*size, 5*size,
+        2*size, 5*size,
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "fd",
+        3*size, 4*size,
+        4*size, 4*size,
+        4*size, 5*size,
+        3*size, 5*size,
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "frd",
+        4*size, 4*size,
+        5*size, 4*size,
+        5*size, 5*size,
+        4*size, 5*size,
+    );
+
+    var skew1 = 0.25;
+    //var skew2 = 0.5;
+
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "ufl",
+        (2-skew1)*size, (2-skew1)*size,
+        (3)*size,       (2-skew1)*size,
+        (3)*size,        2*size,
+        (2)*size,        2*size,
+    );
+
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "uf",
+        (3)*size, (2-skew1)*size,
+        (4)*size, (2-skew1)*size,
+        (4)*size,        2*size,
+        (3)*size,        2*size,
+    );
+
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "urf",
+        (4)*size, (2-skew1)*size,
+        (5+skew1)*size, (2-skew1)*size,
+        (5)*size,        2*size,
+        (4)*size,        2*size,
+    );
+
+
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "ul",
+        (2-2*skew1)*size, (2-2*skew1)*size,
+        (3)*size,       (2-2*skew1)*size,
+        (3)*size,        (2-skew1)*size,
+        (2-skew1)*size,  (2-skew1)*size,
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "u",
+        (3)*size, (2-2*skew1)*size,
+        (4)*size, (2-2*skew1)*size,
+        (4)*size,        (2-skew1)*size,
+        (3)*size,        (2-skew1)*size,
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "ur",
+        (4)*size, (2-2*skew1)*size,
+        (5+2*skew1)*size, (2-2*skew1)*size,
+        (5+skew1)*size, (2-skew1)*size,
+        (4)*size,        (2-skew1)*size,
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "ulb",
+        (2-3*skew1)*size, (2-3*skew1)*size,
+        (3)*size,         (2-3*skew1)*size,
+        (3)*size,         (2-2*skew1)*size,
+        (2-2*skew1)*size,   (2-2*skew1)*size,
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "ub",
+        (3)*size, (2-3*skew1)*size,
+        (4)*size, (2-3*skew1)*size,
+        (4)*size, (2-2*skew1)*size,
+        (3)*size, (2-2*skew1)*size,
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "ubr",
+        (4)*size, (2-3*skew1)*size,
+        (5+3*skew1)*size, (2-3*skew1)*size,
+        (5+2*skew1)*size, (2-2*skew1)*size,
+        (4)*size, (2-2*skew1)*size,
+    );
+
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "dlf",
+        (2)*size, (5)*size,
+        (3)*size,       (5)*size,
+        (3)*size,        (5+skew1)*size,
+        (2-skew1)*size,  (5+skew1)*size,
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "df",
+        (3)*size, (5)*size,
+        (4)*size, (5)*size,
+        (4)*size,        (5+skew1)*size,
+        (3)*size,        (5+skew1)*size,
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "dfr",
+        (4)*size, (5)*size,
+        (5)*size, (5)*size,
+        (5+skew1)*size,        (5+skew1)*size,
+        (4)*size, (5+skew1)*size,
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "dl",
+        (2-skew1)*size, (5+skew1)*size,
+        (3)*size,       (5+skew1)*size,
+        (3)*size,        (5+2*skew1)*size,
+        (2-2*skew1)*size,  (5+2*skew1)*size,
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "d",
+        (3)*size, (5+skew1)*size,
+        (4)*size, (5+skew1)*size,
+        (4)*size,        (5+2*skew1)*size,
+        (3)*size,        (5+2*skew1)*size,
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "dr",
+        (4)*size, (5+skew1)*size,
+        (5+skew1)*size, (5+skew1)*size,
+        (5+2*skew1)*size,        (5+2*skew1)*size,
+        (4)*size, (5+2*skew1)*size,
+    );
+
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "dbl",
+        (2-2*skew1)*size, (5+2*skew1)*size,
+        (3)*size,       (5+2*skew1)*size,
+        (3)*size,        (5+3*skew1)*size,
+        (2-3*skew1)*size,  (5+3*skew1)*size,
+    );
+    drawSticker(
+        ctx, x,y, cubeState, remap,
+        "db",
+        (3)*size, (5+2*skew1)*size,
+        (4)*size, (5+2*skew1)*size,
+        (4)*size,        (5+3*skew1)*size,
+        (3)*size,        (5+3*skew1)*size,
+    );
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "drb",
+        (4)*size, (5+2*skew1)*size,
+        (5+2*skew1)*size, (5+2*skew1)*size,
+        (5+3*skew1)*size,        (5+3*skew1)*size,
+        (4)*size,        (5+3*skew1)*size,
+    );
+
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "lbu",
+        (2-3*skew1)*size, (2-3*skew1)*size,
+        (2-2*skew1)*size, (2-2*skew1)*size,
+        (2-2*skew1)*size, (3)*size,
+        (2-3*skew1)*size, (3)*size,
+    );
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "lu",
+        (2-2*skew1)*size, (2-2*skew1)*size,
+        (2-skew1)*size, (2-skew1)*size,
+        (2-skew1)*size, (3)*size,
+        (2-2*skew1)*size, (3)*size,
+    );
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "luf",
+        (2-skew1)*size, (2-skew1)*size,
+        (2)*size, (2)*size,
+        (2)*size, (3)*size,
+        (2-skew1)*size, (3)*size,
+    );
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "lb",
+        (2-3*skew1)*size, (3)*size,
+        (2-2*skew1)*size, (3)*size,
+        (2-2*skew1)*size, (4)*size,
+        (2-3*skew1)*size, (4)*size,
+    );
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "l",
+        (2-2*skew1)*size, (3)*size,
+        (2-skew1)*size, (3)*size,
+        (2-skew1)*size, (4)*size,
+        (2-2*skew1)*size, (4)*size,
+    );
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "lf",
+        (2-skew1)*size, (3)*size,
+        (2)*size, (3)*size,
+        (2)*size, (4)*size,
+        (2-skew1)*size, (4)*size,
+    );
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "ldb",
+        (2-3*skew1)*size, (4)*size,
+        (2-2*skew1)*size, (4)*size,
+        (2-2*skew1)*size, (5+2*skew1)*size,
+        (2-3*skew1)*size, (5+3*skew1)*size,
+    );
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "ld",
+        (2-2*skew1)*size, (4)*size,
+        (2-skew1)*size, (4)*size,
+        (2-skew1)*size, (5+skew1)*size,
+        (2-2*skew1)*size, (5+2*skew1)*size,
+    );
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "lfd",
+        (2-skew1)*size, (4)*size,
+        (2)*size, (4)*size,
+        (2)*size, (5)*size,
+        (2-skew1)*size, (5+skew1)*size,
+    );
+
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "rfu",
+        (5)*size, (2)*size,
+        (5+skew1)*size, (2-skew1)*size,
+        (5+skew1)*size, (3)*size,
+        (5)*size, (3)*size,
+    );
+
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "ru",
+        (5+skew1)*size, (2-skew1)*size,
+        (5+2*skew1)*size, (2-2*skew1)*size,
+        (5+2*skew1)*size, (3)*size,
+        (5+skew1)*size, (3)*size,
+    );
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "rub",
+        (5+2*skew1)*size, (2-2*skew1)*size,
+        (5+3*skew1)*size, (2-3*skew1)*size,
+        (5+3*skew1)*size, (3)*size,
+        (5+2*skew1)*size, (3)*size,
+    );
+
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "rf",
+        (5)*size, (3)*size,
+        (5+skew1)*size, (3)*size,
+        (5+skew1)*size, (4)*size,
+        (5)*size, (4)*size,
+    );
+
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "r",
+        (5+skew1)*size, (3)*size,
+        (5+2*skew1)*size, (3)*size,
+        (5+2*skew1)*size, (4)*size,
+        (5+skew1)*size, (4)*size,
+    );
+
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "rb",
+        (5+2*skew1)*size, (3)*size,
+        (5+3*skew1)*size, (3)*size,
+        (5+3*skew1)*size, (4)*size,
+        (5+2*skew1)*size, (4)*size,
+    );
+
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "rdf",
+        (5)*size, (4)*size,
+        (5+skew1)*size, (4)*size,
+        (5+skew1)*size, (5+skew1)*size,
+        (5)*size, (5)*size,
+    );
+
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "rd",
+        (5+skew1)*size, (4)*size,
+        (5+2*skew1)*size, (4)*size,
+        (5+2*skew1)*size, (5+2*skew1)*size,
+        (5+skew1)*size, (5+skew1)*size,
+    );
+
+    drawSticker(
+        ctx,  x,y,cubeState, remap,
+        "rbd",
+        (5+2*skew1)*size, (4)*size,
+        (5+3*skew1)*size, (4)*size,
+        (5+3*skew1)*size, (5+3*skew1)*size,
+        (5+2*skew1)*size, (5+2*skew1)*size,
+    );
+  };
+
+  const drawCube = (ctx: CanvasRenderingContext2D) => {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    // Example 2D cube representation (top + front + right)
+    const size = 50;
+    ctx.lineWidth = 3;
+
+    if(cubeState.facePeriod === 4 && cubeState.faceCount === 6) {
+        drawCubeView(ctx,size+10,size+10,size,new Map<string,string>([
+            ["u","u"],
+            ["r","r"],
+            ["f","f"],
+            ["d","d"],
+            ["l","l"],
+            ["b","b"],
+        ]));
+/*
+        drawCubeView(ctx,2.75*size+10,-0.65*size,size/2,new Map<string,string>([
+            ["u","f"],
+            ["r","r"],
+            ["f","d"],
+            ["d","b"],
+            ["l","l"],
+            ["b","u"],
+        ]));
+*/
+        drawCubeView(ctx,-0.6*size,3.0*size,size/2,new Map<string,string>([
+            ["u","u"],
+            ["r","f"],
+            ["f","l"],
+            ["d","d"],
+            ["l","b"],
+            ["b","r"],
+        ]));
+        drawCubeView(ctx,6.5*size,3.0*size,size/2,new Map<string,string>([
+            ["u","u"],
+            ["r","b"],
+            ["f","r"],
+            ["d","d"],
+            ["l","f"],
+            ["b","l"],
+        ]));
+
+    }
+
+  };
+
+
   return (
-    <canvas ref={canvasRef} width={400} height={400} style={{ border: "1px solid black" }} />
+    <canvas ref={canvasRef} width={600} height={400} style={{ border: "1px solid black" }} />
   );
 };
 
