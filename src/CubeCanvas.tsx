@@ -1,9 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 
-interface Move {
-    face: string;
-    direction: number; // if negative, it's an inverse of face
-}
 
 
 interface CubeState {
@@ -11,7 +7,7 @@ interface CubeState {
     stickers: Map<string, string>;
     facePeriod: number;
     faceCount: number;
-    moves: Move[];
+    moves: string[]; // single character keys are tracked
     colors: Map<string,string>;
 }
 
@@ -65,7 +61,7 @@ function NewCubeState(): CubeState {
 
 
 function swap(cube: CubeState, a: string, b: string) {
-    console.log("swapping "+a+" "+b);
+    //console.log("swapping "+a+" "+b);
     var tmp = cube.stickers.get(a) ?? "black";
     cube.stickers.set(a, cube.stickers.get(b) ?? "black");
     cube.stickers.set(b, tmp);
@@ -87,6 +83,51 @@ function Turn(cube: CubeState, face: string) {
     }
 }
 
+// Mutate the cube with a char by char parse, so that
+// user can just type fluently without carriage returns,
+// backspace to undo, etc.
+function Move(cube: CubeState, event: KeyboardEvent) {
+    var k = event.key;
+    if(k === "Backspace") {
+        if(cube.moves.length >= 1) {
+            var oldk = cube.moves.pop() ?? "Z";
+            console.log("undoing "+oldk);
+            var oldnegate = false;
+            if(cube.moves.length >= 1) {
+                if(cube.moves[cube.moves.length-1] === "/") {
+                    oldnegate = true;
+                }
+            }
+            if(["u", "r", "f", "d", "l", "b"].includes(oldk)) {
+                if(!oldnegate) {
+                    Turn(cube, oldk);
+                    Turn(cube, oldk);
+                    Turn(cube, oldk);    
+                } else {
+                    Turn(cube, oldk);
+                }
+            }
+        }
+        return;
+    }
+
+    cube.moves.push(k);
+    if (["u", "r", "f", "d", "l", "b"].includes(k)) {
+        var prevk = undefined;
+        if(cube.moves.length >= 1) {
+            prevk = cube.moves[cube.moves.length-2];
+        }
+        console.log("movecount: " +cube.moves.length+ " previous move "+prevk);
+        if(prevk === "/") {
+            Turn(cube, k);
+            Turn(cube, k);
+            Turn(cube, k);
+        } else {
+            Turn(cube, k);
+        }
+    }
+}
+
 var theCubeState = NewCubeState();
 
 function RenewCubeState() {
@@ -95,7 +136,7 @@ function RenewCubeState() {
         stickers: theCubeState.stickers,
         facePeriod: theCubeState.facePeriod,
         faceCount: theCubeState.faceCount,
-        moves: [],
+        moves: theCubeState.moves,
         colors: new Map<string,string>([
             ["u", "white"],
             ["r", "green"],
@@ -111,9 +152,9 @@ const CubeCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [cubeState, setCubeState] = useState(RenewCubeState());
 
-  const updateCubeState = (move: string) => {
+  const updateCubeState = () => {
     // Placeholder: Here you'd update the cube's internal representation
-    setCubeState((prev) => (RenewCubeState()));
+    setCubeState(() => (RenewCubeState()));
   };
   
   useEffect(() => {
@@ -125,14 +166,8 @@ const CubeCanvas: React.FC = () => {
     drawCube(ctx); // Re-draw cube on state update
 
     const handleKeyDown = (event: KeyboardEvent) => {
-        const key = event.key.toLowerCase();
-        if (["u", "r", "f", "d", "l", "b"].includes(key)) {
-            console.log(`Clockwise turn: ${key}`);
-            Turn(cubeState, key);
-            updateCubeState(key);
-        } else if (key === "/") {
-            console.log("Counterclockwise mode activated. Press a face key.");
-        }
+        Move(cubeState, event);
+        updateCubeState();
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -587,7 +622,7 @@ const CubeCanvas: React.FC = () => {
 
     // Example 2D cube representation (top + front + right)
     const size = 50;
-    ctx.lineWidth = 0.5;
+    ctx.lineWidth = 2;
 
     if(cubeState.facePeriod === 4 && cubeState.faceCount === 6) {
         drawCubeView(ctx,size+10,size+10,size,new Map<string,string>([
@@ -634,13 +669,22 @@ const CubeCanvas: React.FC = () => {
             ["b","l"],
         ]));
 
+        drawCubeView(ctx,2.6*size+6.5*size,3.5*size,size/3,new Map<string,string>([
+            ["u","u"],
+            ["r","l"],
+            ["f","b"],
+            ["d","d"],
+            ["l","r"],
+            ["b","f"],
+        ]));
+
     }
 
   };
 
 
   return (
-    <canvas ref={canvasRef} width={500} height={500} style={{ border: "1px solid black" }} />
+    <canvas ref={canvasRef} width={600} height={500} style={{ border: "1px solid black" }} />
   );
 };
 
