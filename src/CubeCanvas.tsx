@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 interface CubeState {
     adjacencies: Map<string, string[]>;
+    opposites: Map<string, string>;
     stickers: Map<string, string>;
     facePeriod: number;
     faceCount: number;
@@ -55,6 +56,14 @@ function NewCubeState(): CubeState {
             ["l", "blue"],
             ["b", "orange"],
         ]),
+        opposites: new Map<string,string>([
+            ["u", "d"],
+            ["r", "l"],
+            ["f", "b"],
+            ["d", "u"],
+            ["l", "r"],
+            ["b", "f"],
+        ]),
     };
 }
 
@@ -83,6 +92,25 @@ function Turn(cube: CubeState, face: string) {
     }
 }
 
+function TurnAll(cube: CubeState, face: string) {
+    Turn(cube, face);
+    Turn(cube, cube.opposites.get(face) ?? "x");
+    Turn(cube, cube.opposites.get(face) ?? "x");
+    Turn(cube, cube.opposites.get(face) ?? "x");
+
+    // rotate middle layer
+    for(var n = 0; n < cube.facePeriod-1; n++) {
+        var i = cube.adjacencies.get(face)![n];
+        var j = cube.adjacencies.get(face)![(n+1)%cube.facePeriod];
+        var k = cube.adjacencies.get(face)![(n+2)%cube.facePeriod];
+
+        swap(cube, i, j);
+
+        swap(cube, i+j, j+k);
+        swap(cube, j+i, k+j);
+    }
+}
+
 // Mutate the cube with a char by char parse, so that
 // user can just type fluently without carriage returns,
 // backspace to undo, etc.
@@ -91,20 +119,30 @@ function Move(cube: CubeState, event: KeyboardEvent) {
     if(k === "Backspace") {
         if(cube.moves.length >= 1) {
             var oldk = cube.moves.pop() ?? "Z";
-            console.log("undoing "+oldk);
             var oldnegate = false;
             if(cube.moves.length >= 1) {
                 if(cube.moves[cube.moves.length-1] === "/") {
                     oldnegate = true;
                 }
             }
-            if(["u", "r", "f", "d", "l", "b"].includes(oldk)) {
+            if(["u", "r", "f", "d", "l", "b"].includes(oldk.toLowerCase())) {
+                var lk = oldk.toLowerCase();
                 if(!oldnegate) {
-                    Turn(cube, oldk);
-                    Turn(cube, oldk);
-                    Turn(cube, oldk);    
+                    if(oldk === oldk.toUpperCase()) {
+                        TurnAll(cube, lk);
+                        TurnAll(cube, lk);
+                        TurnAll(cube, lk);
+                    } else {
+                        Turn(cube, lk);
+                        Turn(cube, lk);
+                        Turn(cube, lk);        
+                    }
                 } else {
-                    Turn(cube, oldk);
+                    if(oldk === oldk.toUpperCase()) {
+                        TurnAll(cube, lk);
+                    } else {
+                        Turn(cube, lk);
+                    }
                 }
             }
         }
@@ -112,18 +150,28 @@ function Move(cube: CubeState, event: KeyboardEvent) {
     }
 
     cube.moves.push(k);
-    if (["u", "r", "f", "d", "l", "b"].includes(k)) {
+    if (["u", "r", "f", "d", "l", "b"].includes(k.toLowerCase())) {
         var prevk = undefined;
         if(cube.moves.length >= 1) {
             prevk = cube.moves[cube.moves.length-2];
         }
-        console.log("movecount: " +cube.moves.length+ " previous move "+prevk);
+        var lk = k.toLowerCase();
         if(prevk === "/") {
-            Turn(cube, k);
-            Turn(cube, k);
-            Turn(cube, k);
+            if(k === k.toUpperCase()) {
+                Turn(cube, lk);
+                Turn(cube, lk);
+                Turn(cube, lk);
+            } else {
+                TurnAll(cube, lk);
+                TurnAll(cube, lk);
+                TurnAll(cube, lk);
+            }
         } else {
-            Turn(cube, k);
+            if(k === k.toUpperCase()) {
+                TurnAll(cube, lk);
+            } else {
+                Turn(cube, lk);
+            }
         }
     }
 }
@@ -137,14 +185,8 @@ function RenewCubeState() {
         facePeriod: theCubeState.facePeriod,
         faceCount: theCubeState.faceCount,
         moves: theCubeState.moves,
-        colors: new Map<string,string>([
-            ["u", "white"],
-            ["r", "green"],
-            ["f", "red"],
-            ["d", "yellow"],
-            ["l", "blue"],
-            ["b", "orange"],
-        ]),
+        colors: theCubeState.colors,
+        opposites: theCubeState.opposites,
     };
 }
 
