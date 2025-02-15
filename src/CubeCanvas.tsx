@@ -121,16 +121,31 @@ function TurnAll(cube: CubeState, face: string) {
 //  r, u, /r, /u, u2
 // so that backspace removes a whole move
 var apply = function(cube: CubeState, move: string, reverse: number) {
-    // Only single face single negate turns
-    if(move.length === 0) {
+    if(move.length == 0) {
         return;
     }
-    if(move.length > 2 && move[0] === "/") {
+    if(move == "/") {
         return;
     }
 
-    var f = move[move.length-1];
-    reverse = (((move[0] === "/")?1:0) + reverse);
+    var f = "";
+    var digits = "";
+    var count = 1;
+    if(move.length > 0 && move[0] === "/") {
+        reverse++;
+        f = move[1];
+        digits = move.substring(2);
+        if(digits.length > 0) {
+            count = parseInt(digits);
+        }
+    } else {
+        f = move[0];
+        digits = move.substring(1);
+        if(digits.length > 0) {
+            count = parseInt(digits);
+        }
+    }
+
     // individual moves applied down here
     if (["u", "r", "f", "d", "l", "b"].includes(f.toLowerCase())) {
         var lk = f.toLowerCase();
@@ -138,12 +153,14 @@ var apply = function(cube: CubeState, move: string, reverse: number) {
         if( f === f.toUpperCase() ){
             turn = TurnAll;
         }
-        if((reverse%2)==1) {
-            turn(cube,lk);
-            turn(cube,lk);
-            turn(cube,lk);
-        } else {
-            turn(cube,lk);
+        for(var i = 0; i < count; i++) {
+            if((reverse%2)==1) {
+                turn(cube,lk);
+                turn(cube,lk);
+                turn(cube,lk);
+            } else {
+                turn(cube,lk);
+            }
         }
     }
 }
