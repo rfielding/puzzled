@@ -170,6 +170,11 @@ function Move(cube: CubeState, event: KeyboardEvent) {
     var move = k;
     if(k === "Backspace") {
         {
+            if(cube.grouped.length > 0) {
+                cube.grouped.pop();
+                return;
+            }
+
             // replay top of stack in reverse
             undo++;
             var topStr = cube.moves.pop();
@@ -201,6 +206,10 @@ function Move(cube: CubeState, event: KeyboardEvent) {
             if(cube.grouped.length > 0) {
                 cube.grouped[cube.grouped.length-1] += top;
             } else {
+                if(cube.moves.length > 0 && cube.moves[cube.moves.length-1] === "/") {
+                    cube.moves.pop();
+                    top = "/"+top;
+                }
                 cube.moves.push(top);
             }
             return;
@@ -775,6 +784,10 @@ const CubeCanvas: React.FC = () => {
         ctx.fillStyle = "gray";
         var lastChars = cubeState.moves.slice(-50).join("");
         ctx.fillText(lastChars, 0*size, 10*size);
+
+        ctx.fillStyle = "yellow";
+        var grouped = cubeState.grouped.join("");
+        ctx.fillText(grouped, 0*size, 9.5*size);
     }
 
   };
