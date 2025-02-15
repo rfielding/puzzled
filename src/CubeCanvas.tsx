@@ -1,6 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 
 
+interface Move {
+    face: string;
+    reverse: boolean;
+    count: number;
+}
 
 interface CubeState {
     adjacencies: Map<string, string[]>;
@@ -10,6 +15,7 @@ interface CubeState {
     faceCount: number;
     moves: string[]; // single character keys are tracked
     colors: Map<string,string>;
+    grouped: string[];
 }
 
 function NewCubeState(): CubeState {
@@ -48,6 +54,7 @@ function NewCubeState(): CubeState {
         facePeriod: facePeriod,
         faceCount: faceCount,
         moves: [],
+        grouped: [],
         colors: new Map<string,string>([
             ["u", "white"],
             ["r", "green"],
@@ -70,7 +77,6 @@ function NewCubeState(): CubeState {
 
 
 function swap(cube: CubeState, a: string, b: string) {
-    //console.log("swapping "+a+" "+b);
     var tmp = cube.stickers.get(a) ?? "black";
     cube.stickers.set(a, cube.stickers.get(b) ?? "black");
     cube.stickers.set(b, tmp);
@@ -111,54 +117,28 @@ function TurnAll(cube: CubeState, face: string) {
     }
 }
 
-// Mutate the cube with a char by char parse, so that
-// user can just type fluently without carriage returns,
-// backspace to undo, etc.
-function Move(cube: CubeState, event: KeyboardEvent) {
-    var k = event.key;
-    if(k === "Backspace") {
-        if(cube.moves.length >= 1) {
-            var oldk = cube.moves.pop() ?? "Z";
-            var oldnegate = false;
-            if(cube.moves.length >= 1) {
-                if(cube.moves[cube.moves.length-1] === "/") {
-                    oldnegate = true;
-                }
-            }
-            if(["u", "r", "f", "d", "l", "b"].includes(oldk.toLowerCase())) {
-                var lk = oldk.toLowerCase();
-                var turn = Turn;
-                if(oldk === oldk.toUpperCase()) {
-                    turn = TurnAll;
-                }
-                if(!oldnegate) {
-                    turn(cube, lk);
-                    turn(cube, lk);
-                    turn(cube, lk);
-                } else {
-                    turn(cube, lk);
-                }
-            }
-        }
+// whole moves are like:
+//  r, u, /r, /u, u2
+// so that backspace removes a whole move
+var apply = function(cube: CubeState, move: string, reverse: number) {
+    // Only single face single negate turns
+    if(move.length === 0) {
+        return;
+    }
+    if(move.length > 2 && move[0] === "/") {
         return;
     }
 
-    if(![" ","u", "r", "f", "d", "l", "b", "U","R","F","D","L","B", "/"].includes(k)) {
-        return;
-    }
-    cube.moves.push(k);
-    
-    if (["u", "r", "f", "d", "l", "b"].includes(k.toLowerCase())) {
-        var prevk = undefined;
-        if(cube.moves.length >= 1) {
-            prevk = cube.moves[cube.moves.length-2];
-        }
-        var lk = k.toLowerCase();
+    var f = move[move.length-1];
+    reverse = (((move[0] === "/")?1:0) + reverse);
+    // individual moves applied down here
+    if (["u", "r", "f", "d", "l", "b"].includes(f.toLowerCase())) {
+        var lk = f.toLowerCase();
         var turn = Turn;
-        if( k === k.toUpperCase() ){
+        if( f === f.toUpperCase() ){
             turn = TurnAll;
         }
-        if(prevk === "/") {
+        if((reverse%2)==1) {
             turn(cube,lk);
             turn(cube,lk);
             turn(cube,lk);
@@ -166,6 +146,79 @@ function Move(cube: CubeState, event: KeyboardEvent) {
             turn(cube,lk);
         }
     }
+}
+
+
+// Mutate the cube with a char by char parse, so that
+// user can just type fluently without carriage returns,
+// backspace to undo, etc.
+function Move(cube: CubeState, event: KeyboardEvent) {
+    // limit to plausible characters
+    if(![
+        "u", "r", "f", "d", "l", "b", 
+        "U", "R", "F", "D", "L", "B",
+        "/","(",")","{","}","[","]"," ",
+        "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+        "Backspace",
+    ].includes(event.key)) {
+        return;
+    }
+
+    var undo = 0;
+    var k = event.key;
+
+    var move = k;
+    if(k === "Backspace") {
+        {
+            // replay top of stack in reverse
+            undo++;
+            var topStr = cube.moves.pop();
+            if(topStr === undefined) {
+                return;
+            }
+            move = topStr;
+        }
+    } else if(k === "{" || k === "(" || k === "[") {
+        {
+            cube.grouped.push(k);
+            return;
+        }
+    } else if(k === "}" || k === ")" || k === "]") {
+        {
+            var openbrace = new Map<string,string>([
+                [")","("],
+                ["}","{"],
+                ["]","["],
+            ]);
+            var top = cube.grouped.pop();
+            if(top === undefined) {
+                return;
+            }
+            if(top[0] !== openbrace.get(k)) {
+                return;
+            }
+            top += k;
+            if(cube.grouped.length > 0) {
+                cube.grouped[cube.grouped.length-1] += top;
+            } else {
+                cube.moves.push(top);
+            }
+            return;
+        }
+    } else if(cube.grouped.length > 0) {
+        cube.grouped[cube.grouped.length-1] += k;
+        return;
+    } else {
+        while(cube.moves.length > 0 && cube.moves[cube.moves.length-1] === "/") {
+            move = cube.moves.pop() + move;
+        }
+        //eliminate double negations as we go
+        if(cube.moves[cube.moves.length-1] === "//") {
+            cube.moves.pop();
+        }
+        cube.moves.push(move);
+    }
+    apply(cube, move, undo);
 }
 
 var theCubeState = NewCubeState();
@@ -179,6 +232,7 @@ function RenewCubeState() {
         moves: theCubeState.moves,
         colors: theCubeState.colors,
         opposites: theCubeState.opposites,
+        grouped: theCubeState.grouped,
     };
 }
 
