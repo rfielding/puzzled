@@ -164,7 +164,6 @@ function Move(cube: CubeState, event: KeyboardEvent) {
         return;
     }
 
-    var undo = 0;
     var k = event.key;
 
     var move = k;
@@ -176,17 +175,16 @@ function Move(cube: CubeState, event: KeyboardEvent) {
             }
 
             // replay top of stack in reverse
-            undo++;
             var topStr = cube.moves.pop();
             if(topStr === undefined) {
                 return;
             }
             move = topStr;
+            apply(cube, move, 1);
         }
     } else if(k === "{" || k === "(" || k === "[") {
         {
             cube.grouped.push(k);
-            return;
         }
     } else if(k === "}" || k === ")" || k === "]") {
         {
@@ -212,11 +210,9 @@ function Move(cube: CubeState, event: KeyboardEvent) {
                 }
                 cube.moves.push(top);
             }
-            return;
         }
     } else if(cube.grouped.length > 0) {
         cube.grouped[cube.grouped.length-1] += k;
-        return;
     } else {
         while(cube.moves.length > 0 && cube.moves[cube.moves.length-1] === "/") {
             move = cube.moves.pop() + move;
@@ -225,9 +221,18 @@ function Move(cube: CubeState, event: KeyboardEvent) {
         if(cube.moves[cube.moves.length-1] === "//") {
             cube.moves.pop();
         }
+        if("0" <= k && k <= "9") {
+            // undo what is on the stack and redo it.
+            if(cube.moves.length > 0) {
+                var pop = cube.moves.pop() ?? "";
+                apply(cube, pop, 1);
+            }
+            move = pop + k
+
+        }
         cube.moves.push(move);
+        apply(cube, move, 0);
     }
-    apply(cube, move, undo);
 }
 
 var theCubeState = NewCubeState();
