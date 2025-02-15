@@ -121,13 +121,6 @@ function TurnAll(cube: CubeState, face: string) {
 //  r, u, /r, /u, u2
 // so that backspace removes a whole move
 var apply = function(cube: CubeState, move: string, reverse: number) {
-    if(move.length == 0) {
-        return;
-    }
-    if(move == "/") {
-        return;
-    }
-
     var f = "";
     var digits = "";
     var count = 1;
@@ -247,7 +240,9 @@ function Move(cube: CubeState, event: KeyboardEvent) {
             }
         }
         cube.moves.push(move);
-        apply(cube, move, 0);
+        if(move != "/" && move != "") {
+            apply(cube, move, 0);
+        }
     }
 }
 
