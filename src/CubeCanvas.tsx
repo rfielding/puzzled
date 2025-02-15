@@ -226,9 +226,8 @@ function Move(cube: CubeState, event: KeyboardEvent) {
             if(cube.moves.length > 0) {
                 var pop = cube.moves.pop() ?? "";
                 apply(cube, pop, 1);
+                move = pop + k;
             }
-            move = pop + k
-
         }
         cube.moves.push(move);
         apply(cube, move, 0);
