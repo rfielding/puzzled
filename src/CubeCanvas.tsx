@@ -172,16 +172,21 @@ var execute = function(cube: CubeState, move: Move, reverse: number) {
                 turn(cube, lk);
                 turn(cube, lk);
                 turn(cube, lk);
-                //console.log("/"+move.face);
+                console.log("/"+move.face);
             } else {
                 turn(cube, lk);
-                //console.log(move.face);
+                console.log(move.face);
             }
         }
     }
 }
 
 var apply = function(cube: CubeState, move: string, reverse: number) {
+    console.log("apply: "+reverse+" "+move);
+    if(move.length > 0 && move[0] === "/") {
+        move = move.substring(1);
+        reverse++;
+    }
     var ms = [] as Move[];
     ms.push({reverse:0,count:1} as Move);
     for(var i=0; i < move.length; i++) {
