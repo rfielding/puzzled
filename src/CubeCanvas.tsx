@@ -125,19 +125,16 @@ var execute = function(cube: CubeState, move: Move, reverse: number) {
     for(var c = 0; c < move.count; c++) {
         if(move.face === undefined && move.moves.length > 0) {
             var n = (move.reverse+reverse)%2;
-            for(var j = 0; j < move.count; j++) {
-                if(n%2 === 0) {
-                    for(var i = 0; i < move.moves.length; i++) {
-                        var m = move.moves[i];
-                        execute(cube, m, n);
-                    }    
-                } else {
-                    for(var i = move.moves.length-1; i >= 0; i--) {
-                        var m = move.moves[i];
-                        execute(cube, m, n);
-                    }
-                }    
-            }
+            if(n%2 === 0) {
+                for(var i = 0; i < move.moves.length; i++) {
+                    var m = move.moves[i];                        execute(cube, m, n);
+                }   
+            } else {
+                for(var i = move.moves.length-1; i >= 0; i--) {
+                var m = move.moves[i];
+                    execute(cube, m, n);
+                }
+            }    
         } else if(move.face.length > 0) {
             var lk = move.face.toLowerCase();
             var turn = Turn;
