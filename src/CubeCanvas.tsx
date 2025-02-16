@@ -241,48 +241,6 @@ var apply = function(cube: CubeState, move: string, reverse: number) {
     execute(cube, result, reverse);
 }
 
-// whole moves are like:
-//  r, u, /r, /u, u2
-// so that backspace removes a whole move
-var apply2 = function(cube: CubeState, move: string, reverse: number) {
-    console.log("applying "+move);
-    var f = "";
-    var digits = "";
-    var count = 1;
-    if(move.length > 0 && move[0] === "/") {
-        reverse++;
-        f = move[1];
-        digits = move.substring(2);
-        if(digits.length > 0) {
-            count = parseInt(digits);
-        }
-    } else {
-        f = move[0];
-        digits = move.substring(1);
-        if(digits.length > 0) {
-            count = parseInt(digits);
-        }
-    }
-
-    // individual moves applied down here
-    if (["u", "r", "f", "d", "l", "b"].includes(f.toLowerCase())) {
-        var lk = f.toLowerCase();
-        var turn = Turn;
-        if( f === f.toUpperCase() ){
-            turn = TurnAll;
-        }
-        for(var i = 0; i < count; i++) {
-            if((reverse%2)==1) {
-                turn(cube,lk);
-                turn(cube,lk);
-                turn(cube,lk);
-            } else {
-                turn(cube,lk);
-            }
-        }
-    }
-}
-
 
 // Mutate the cube with a char by char parse, so that
 // user can just type fluently without carriage returns,
