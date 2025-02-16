@@ -112,7 +112,6 @@ function TurnAll(cube: CubeState, face: string) {
 }
 
 interface Move {
-    isGrouped: boolean;
     face: string;
     moves: Move[];
     reverse: number;
@@ -120,39 +119,71 @@ interface Move {
 }
 
 var execute = function(cube: CubeState, move: Move, reverse: number) {
-    for(var i=0; i < move.count; i++) {
-        if(move.face === undefined) {
-            for(var i = 0; i < move.moves.length; i++) {
-                execute(cube, move.moves[i], (move.reverse+reverse));
+        if(move.face === undefined && move.moves.length > 0) {
+            if((move.reverse+reverse)%2 === 0) {
+                for(var i = 0; i < move.moves.length; i++) {
+                    var m = move.moves[i];
+                    execute(cube, m, (move.reverse+reverse));
+                }    
+            } else {
+                for(var i = move.moves.length-1; i >= 0; i--) {
+                    var m = move.moves[i];
+                    execute(cube, m, (move.reverse+reverse));
+                }
             }
         } else {
-            if((move.reverse+reverse)%2 === 1) {
-                Turn(cube, move.face);
-                Turn(cube, move.face);
-                Turn(cube, move.face);
-            } else {
-                Turn(cube, move.face);
+            var lk = move.face.toLowerCase();
+            var turn = Turn;
+            if( move.face === move.face.toUpperCase() ){
+                turn = TurnAll;
+            }
+            for(var i=0; i<move.count; i++) {
+                if((move.reverse+reverse)%2 === 1) {
+                    turn(cube, lk);
+                    turn(cube, lk);
+                    turn(cube, lk);
+                } else {
+                    turn(cube, lk);
+                }
             }
         }
-    }
 }
 
 var apply = function(cube: CubeState, move: string, reverse: number) {
     var ms = [] as Move[];
     ms.push({reverse:0,count:1} as Move);
     for(var i=0; i < move.length; i++) {
-        if(move[i] === "/") {
+        if(ms.length==1 && move[i] === "/") {
             ms[ms.length-1].reverse++;
-        } else if(["u","r","f","d","l","b"].includes(move[i].toLowerCase())) {
+        } else if(ms.length==1 && ["u","r","f","d","l","b"].includes(move[i].toLowerCase())) {
             ms[ms.length-1].face = move[i];
-        } else if("0" < move[i] && move[i] <= "9") {
+        } else if(ms.length==1 && "0" < move[i] && move[i] <= "9") {
             var count = 0;
             while(i < move.length && "0" <= move[i] && move[i] <= "9") {
                 count = count*10 + parseInt(move[i]);
                 i++;
             }
-            i--; // pointing at last digit
+            i--;
             ms[ms.length-1].count = count;
+        } else if(["(","{","["].includes(move[i])) {
+            var n = 0;
+            if(move.length > 0 && move[i-1] === "/") {
+                n++;
+            }
+            var top = {moves:[] as Move[],reverse:n,count:1} as Move;
+            ms.push(top);
+        } else if(["u","r","f","d","l","b"].includes(move[i].toLowerCase())) {
+            var n = 0;
+            if(move.length > 0 && move[i-1] === "/") {
+                n++;
+            }
+            ms[ms.length-1].moves.push({face:move[i],reverse:n,count:1} as Move);
+        } else if([")","}","]"].includes(move[i])) {
+            var top = ms.pop() as Move;
+            if(ms[ms.length-1].moves === undefined) {
+                ms[ms.length-1].moves = [] as Move[]
+            }
+            ms[ms.length-1].moves.push(top);
         }
     }
     var result = ms[0];
