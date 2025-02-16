@@ -1,12 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
 
-interface Move {
-    face: string;
-    reverse: boolean;
-    count: number;
-}
-
 interface CubeState {
     adjacencies: Map<string, string[]>;
     opposites: Map<string, string>;
@@ -117,10 +111,87 @@ function TurnAll(cube: CubeState, face: string) {
     }
 }
 
+interface Move {
+    face: string;
+    moves: Move[];
+    isCommutator: boolean;
+    isConjugate: boolean; // isCommutator => isConjugate
+    reverse: boolean;
+    count: number;
+}
+
+var apply = function(cube: CubeState, move: string, reverse: number) {
+    // fix the string to produce a cannonical move, and ignore reverse thereafter
+    if( ((reverse%2)==1) && (move.length > 0) && (move[0] === "/") ) {
+        move = move.substring(1);
+    } else if(((reverse%2)==1) && (move.length > 0) && (move[0] !== "/")) {
+        move = "/"+move;
+    }
+
+    // parse the move as an atomic unit
+    /*
+    var opposite = new Map<String,string>([
+        ["}","{"],
+        [")","("],
+        ["]","["]
+    ]);
+    */
+
+    var ms = [] as Move[];
+    ms.push({moves: [] as Move[]} as Move);
+    for(var i=0; i<move.length; i++) {
+        var c = move[i];
+        if(c === "{" || c === "(" || c === "[") {
+            var m = {} as Move;
+            m.moves = [] as Move[];
+            if(move.length > 1 && move[i-1] === "/") {
+                m.reverse = true;
+            }
+            if(c === "{") {
+                m.isConjugate = true;
+            }
+            if(c === "[") {
+                m.isCommutator = true;
+            }
+            ms.push(m);
+        } else if(c === "}" || c === ")" || c === "]") {
+            var top = ms.pop();
+            if(top === undefined) {
+                return;
+            }
+            ms[ms.length-1].moves.push(top);            
+        } else if("0" <= c && c <= "9") {
+            // look ahead to get the whole number
+            var count = 0;
+            while(i < move.length && "0" <= move[i] && move[i] <= "9") {
+                count = count*10 + parseInt(move[i]);
+                i++;
+            }
+            i--; // i points to last char
+            c = move[i];
+            console.log("lastchar "+move[i]+" at "+i);
+            console.log("set count on "+JSON.stringify(ms[ms.length-1])+" to "+count);
+            // set the last item on to of stack count
+            var topitem = ms.length-1;
+            var lastitem = ms[topitem].moves.length-1;
+            ms[topitem].moves[lastitem].count = count;
+        } else if(["u", "r", "f", "d", "l", "b"].includes(c.toLowerCase())) {
+            var m = {} as Move;
+            m.face = c;
+            if(move.length > 1 && move[i-1] === "/") {
+                m.reverse = true;
+            }
+            console.log("pushing "+JSON.stringify(m)+" on to "+JSON.stringify(ms[ms.length-1].moves));
+            ms[ms.length-1].moves.push(m);
+        }
+    }
+    console.log(JSON.stringify(ms));
+}
+
 // whole moves are like:
 //  r, u, /r, /u, u2
 // so that backspace removes a whole move
-var apply = function(cube: CubeState, move: string, reverse: number) {
+var apply2 = function(cube: CubeState, move: string, reverse: number) {
     var f = "";
     var digits = "";
     var count = 1;
@@ -219,6 +290,7 @@ function Move(cube: CubeState, event: KeyboardEvent) {
                     top = "/"+top;
                 }
                 cube.moves.push(top);
+                apply(cube, top, 0);
             }
         }
     } else if(cube.grouped.length > 0) {
