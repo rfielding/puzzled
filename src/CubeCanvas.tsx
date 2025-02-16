@@ -253,6 +253,7 @@ function Move(cube: CubeState, event: KeyboardEvent) {
         "/","(",")","{","}","[","]"," ",
         "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
         "Backspace",
+        "Enter",
     ].includes(event.key)) {
         return;
     }
@@ -308,6 +309,10 @@ function Move(cube: CubeState, event: KeyboardEvent) {
     } else if(cube.grouped.length > 0) {
         cube.grouped[cube.grouped.length-1] += k;
     } else {
+        // on enter, just reproduce the last move
+        if(k === "Enter" && cube.moves.length > 0) {
+            move = cube.moves[cube.moves.length-1];
+        } 
         while(cube.moves.length > 0 && cube.moves[cube.moves.length-1] === "/") {
             move = cube.moves.pop() + move;
         }
