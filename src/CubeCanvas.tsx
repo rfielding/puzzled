@@ -111,12 +111,60 @@ function TurnAll(cube: CubeState, face: string) {
     }
 }
 
+interface Move {
+    isGrouped: boolean;
+    face: string;
+    moves: Move[];
+    reverse: number;
+    count: number;
+}
 
+var execute = function(cube: CubeState, move: Move, reverse: number) {
+    for(var i=0; i < move.count; i++) {
+        if(move.face === undefined) {
+            for(var i = 0; i < move.moves.length; i++) {
+                execute(cube, move.moves[i], (move.reverse+reverse));
+            }
+        } else {
+            if((move.reverse+reverse)%2 === 1) {
+                Turn(cube, move.face);
+                Turn(cube, move.face);
+                Turn(cube, move.face);
+            } else {
+                Turn(cube, move.face);
+            }
+        }
+    }
+}
+
+var apply = function(cube: CubeState, move: string, reverse: number) {
+    var ms = [] as Move[];
+    ms.push({reverse:0,count:1} as Move);
+    for(var i=0; i < move.length; i++) {
+        if(move[i] === "/") {
+            ms[ms.length-1].reverse++;
+        } else if(["u","r","f","d","l","b"].includes(move[i].toLowerCase())) {
+            ms[ms.length-1].face = move[i];
+        } else if("0" < move[i] && move[i] <= "9") {
+            var count = 0;
+            while(i < move.length && "0" <= move[i] && move[i] <= "9") {
+                count = count*10 + parseInt(move[i]);
+                i++;
+            }
+            i--; // pointing at last digit
+            ms[ms.length-1].count = count;
+        }
+    }
+    var result = ms[0];
+    console.log("execute: "+reverse+" "+move+" -> "+JSON.stringify(result));
+    execute(cube, result, reverse);
+}
 
 // whole moves are like:
 //  r, u, /r, /u, u2
 // so that backspace removes a whole move
-var apply = function(cube: CubeState, move: string, reverse: number) {
+var apply2 = function(cube: CubeState, move: string, reverse: number) {
+    console.log("applying "+move);
     var f = "";
     var digits = "";
     var count = 1;
