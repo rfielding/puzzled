@@ -120,15 +120,15 @@ interface Move {
     isConjugate: boolean;
 }
 
-var executeFwd = function(cube: CubeState, move: Move, n: number) {
-    for(var i = 0; i < move.moves.length; i++) {
+var executeFwd = function(cube: CubeState, move: Move, n: number, less:number) {
+    for(var i = 0; i < move.moves.length-less; i++) {
         var m = move.moves[i];
         execute(cube, m, n);
     }   
 }
 
-var executeBwd = function(cube: CubeState, move: Move, n: number) {
-    for(var i = move.moves.length-1; i >= 0; i--) {
+var executeBwd = function(cube: CubeState, move: Move, n: number, less:number) {
+    for(var i = move.moves.length-1-less; i >= 0; i--) {
         var m = move.moves[i];
         execute(cube, m, n);
     }   
@@ -141,25 +141,25 @@ var execute = function(cube: CubeState, move: Move, reverse: number) {
             var n = (move.reverse+reverse)%2;
             if(move.isCommutator) {
                 if(n%2 === 0) {
-                    executeFwd(cube, move, n);
-                    executeFwd(cube, move, n+1);
+                    executeFwd(cube, move, n, 0);
+                    executeFwd(cube, move, n+1, 0);
                 } else {
-                    executeBwd(cube, move, n+1);
-                    executeBwd(cube, move, n);
+                    executeBwd(cube, move, n+1, 0);
+                    executeBwd(cube, move, n, 0);
                 }        
             } else if(move.isConjugate) {
                 if(n%2 === 0) {
-                    executeFwd(cube, move, n);
-                    executeFwd(cube, move, n+1);
+                    executeFwd(cube, move, n, 0);
+                    executeBwd(cube, move, n+1, 1);
                 } else {
-                    executeBwd(cube, move, n+1);
-                    executeBwd(cube, move, n);
+                    executeFwd(cube, move, n+1, 1);
+                    executeBwd(cube, move, n, 0);
                 }        
             } else {
                 if(n%2 === 0) {
-                    executeFwd(cube, move, n);
+                    executeFwd(cube, move, n, 0);
                 } else {
-                    executeBwd(cube, move, n);
+                    executeBwd(cube, move, n, 0);
                 }        
             }
         } else if(move.face.length > 0) {
@@ -172,10 +172,10 @@ var execute = function(cube: CubeState, move: Move, reverse: number) {
                 turn(cube, lk);
                 turn(cube, lk);
                 turn(cube, lk);
-                console.log("/"+move.face);
+                //console.log("/"+move.face);
             } else {
                 turn(cube, lk);
-                console.log(move.face);
+                //console.log(move.face);
             }
         }
     }
@@ -237,7 +237,7 @@ var apply = function(cube: CubeState, move: string, reverse: number) {
         }
     }
     var result = ms[0];
-    console.log("execute: "+reverse+" "+move+" -> "+JSON.stringify(ms));
+    //console.log("execute: "+reverse+" "+move+" -> "+JSON.stringify(ms));
     execute(cube, result, reverse);
 }
 
