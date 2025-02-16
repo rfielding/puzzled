@@ -120,21 +120,48 @@ interface Move {
     isConjugate: boolean;
 }
 
+var executeFwd = function(cube: CubeState, move: Move, n: number) {
+    for(var i = 0; i < move.moves.length; i++) {
+        var m = move.moves[i];
+        execute(cube, m, n);
+    }   
+}
+
+var executeBwd = function(cube: CubeState, move: Move, n: number) {
+    for(var i = move.moves.length-1; i >= 0; i--) {
+        var m = move.moves[i];
+        execute(cube, m, n);
+    }   
+}
+
 var execute = function(cube: CubeState, move: Move, reverse: number) {
     // don't mutate anything while inside this loop!
     for(var c = 0; c < move.count; c++) {
         if(move.face === undefined && move.moves.length > 0) {
             var n = (move.reverse+reverse)%2;
-            if(n%2 === 0) {
-                for(var i = 0; i < move.moves.length; i++) {
-                    var m = move.moves[i];                        execute(cube, m, n);
-                }   
+            if(move.isCommutator) {
+                if(n%2 === 0) {
+                    executeFwd(cube, move, n);
+                    executeFwd(cube, move, n+1);
+                } else {
+                    executeBwd(cube, move, n+1);
+                    executeBwd(cube, move, n);
+                }        
+            } else if(move.isConjugate) {
+                if(n%2 === 0) {
+                    executeFwd(cube, move, n);
+                    executeFwd(cube, move, n+1);
+                } else {
+                    executeBwd(cube, move, n+1);
+                    executeBwd(cube, move, n);
+                }        
             } else {
-                for(var i = move.moves.length-1; i >= 0; i--) {
-                var m = move.moves[i];
-                    execute(cube, m, n);
-                }
-            }    
+                if(n%2 === 0) {
+                    executeFwd(cube, move, n);
+                } else {
+                    executeBwd(cube, move, n);
+                }        
+            }
         } else if(move.face.length > 0) {
             var lk = move.face.toLowerCase();
             var turn = Turn;
