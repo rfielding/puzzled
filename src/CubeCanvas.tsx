@@ -116,6 +116,8 @@ interface Move {
     moves: Move[];
     reverse: number;
     count: number;
+    isCommutator: boolean;
+    isConjugate: boolean;
 }
 
 var execute = function(cube: CubeState, move: Move, reverse: number) {
@@ -171,6 +173,12 @@ var apply = function(cube: CubeState, move: string, reverse: number) {
                 n++;
             }
             var top = {moves:[] as Move[],reverse:n,count:1} as Move;
+            if(move[i] === "[") {
+                top.isCommutator = true;
+            }
+            if(move[i] === "{") {
+                top.isConjugate = true;
+            }
             ms.push(top);
         } else if(["u","r","f","d","l","b"].includes(move[i].toLowerCase())) {
             var n = 0;
@@ -184,10 +192,22 @@ var apply = function(cube: CubeState, move: string, reverse: number) {
                 ms[ms.length-1].moves = [] as Move[]
             }
             ms[ms.length-1].moves.push(top);
+        } else if("0" <= move[i] && move[i] <= "9") {
+            var count = 0;
+            while(i < move.length && "0" <= move[i] && move[i] <= "9") {
+                count = count*10 + parseInt(move[i]);
+                i++;
+            }
+            i--;
+            var top = ms.pop() as Move;
+            var last = top.moves.pop() as Move;
+            last.count = count;
+            top.moves.push(last);
+            ms.push(top);
         }
     }
     var result = ms[0];
-    console.log("execute: "+reverse+" "+move+" -> "+JSON.stringify(result));
+    console.log("execute: "+reverse+" "+move+" -> "+JSON.stringify(ms));
     execute(cube, result, reverse);
 }
 
