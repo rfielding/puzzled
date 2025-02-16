@@ -121,34 +121,40 @@ interface Move {
 }
 
 var execute = function(cube: CubeState, move: Move, reverse: number) {
+    // don't mutate anything while inside this loop!
+    for(var c = 0; c < move.count; c++) {
         if(move.face === undefined && move.moves.length > 0) {
-            if((move.reverse+reverse)%2 === 0) {
-                for(var i = 0; i < move.moves.length; i++) {
-                    var m = move.moves[i];
-                    execute(cube, m, (move.reverse+reverse));
+            var n = (move.reverse+reverse)%2;
+            for(var j = 0; j < move.count; j++) {
+                if(n%2 === 0) {
+                    for(var i = 0; i < move.moves.length; i++) {
+                        var m = move.moves[i];
+                        execute(cube, m, n);
+                    }    
+                } else {
+                    for(var i = move.moves.length-1; i >= 0; i--) {
+                        var m = move.moves[i];
+                        execute(cube, m, n);
+                    }
                 }    
-            } else {
-                for(var i = move.moves.length-1; i >= 0; i--) {
-                    var m = move.moves[i];
-                    execute(cube, m, (move.reverse+reverse));
-                }
             }
-        } else {
+        } else if(move.face.length > 0) {
             var lk = move.face.toLowerCase();
             var turn = Turn;
             if( move.face === move.face.toUpperCase() ){
                 turn = TurnAll;
             }
-            for(var i=0; i<move.count; i++) {
-                if((move.reverse+reverse)%2 === 1) {
-                    turn(cube, lk);
-                    turn(cube, lk);
-                    turn(cube, lk);
-                } else {
-                    turn(cube, lk);
-                }
+            if((move.reverse+reverse)%2 === 1) {
+                turn(cube, lk);
+                turn(cube, lk);
+                turn(cube, lk);
+                console.log("/"+move.face);
+            } else {
+                turn(cube, lk);
+                console.log(move.face);
             }
         }
+    }
 }
 
 var apply = function(cube: CubeState, move: string, reverse: number) {
