@@ -28,7 +28,6 @@ function NewCubeState(): CubeState {
     var stickers = new Map<string, string>();
     // from here, the code should not be 3x3x3 specific
     for( let f of adjacencies.keys() ) {
-        //console.log("!!face "+f);
         var faces = adjacencies.get(f);
         if( !faces ) {
             console.error("face "+f+" not found in adjacencies");
@@ -39,7 +38,6 @@ function NewCubeState(): CubeState {
                 stickers.set(f,f);
                 stickers.set(edge,f);
                 stickers.set(corner,f);
-                //console.log("stickering "+f+" "+edge+" "+corner);
             }    
         }
     }
@@ -273,8 +271,17 @@ function Move(cube: CubeState, event: KeyboardEvent) {
         return;
     }
     if(k === "Backspace") {
+        // when typing a compound move, just eliminate chars until it is empty
         if(cube.grouped.length > 0) {
-            cube.grouped.pop();
+            // pop a char off top of stack if there are chars, so we can edit our grouped plan
+            if(cube.grouped[cube.grouped.length-1].length > 0) {
+                // just remove a char
+                cube.grouped[cube.grouped.length-1] =
+                    cube.grouped[cube.grouped.length-1].slice(0,-1);
+            } else {
+                // remove an empty group
+                cube.grouped.pop();
+            }
             return;
         }
 
