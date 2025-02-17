@@ -959,7 +959,7 @@ useEffect(() => {
 }, [canvasRef.current]); 
 
   return (
-    <canvas ref={canvasRef} width={550} height={510} style={{ border: "1px solid black" }} />
+    <canvas ref={canvasRef} width={550} height={510} style={{ border: "0px solid black" }} />
   );
 };
 
