@@ -269,57 +269,59 @@ function Move(cube: CubeState, event: KeyboardEvent) {
     var k = event.key;
 
     var move = k;
+    if(k === "Enter" && cube.grouped.length > 0) {
+        return;
+    }
     if(k === "Backspace") {
-        {
-            if(cube.grouped.length > 0) {
-                cube.grouped.pop();
-                return;
-            }
+        if(cube.grouped.length > 0) {
+            cube.grouped.pop();
+            return;
+        }
 
-            // replay top of stack in reverse
-            var topStr = cube.moves.pop();
-            if(topStr === undefined) {
-                return;
-            }
-            move = topStr;
-            apply(cube, move, 1);
+        // replay top of stack in reverse
+        var topStr = cube.moves.pop();
+        if(topStr === undefined) {
+            return;
         }
+        move = topStr;
+        apply(cube, move, 1);
     } else if(k === "{" || k === "(" || k === "[") {
-        {
-            cube.grouped.push(k);
-        }
+        cube.grouped.push(k);
     } else if(k === "}" || k === ")" || k === "]") {
-        {
-            var openbrace = new Map<string,string>([
-                [")","("],
-                ["}","{"],
-                ["]","["],
-            ]);
-            var top = cube.grouped.pop();
-            if(top === undefined) {
-                return;
+        var openbrace = new Map<string,string>([
+            [")","("],
+            ["}","{"],
+            ["]","["],
+        ]);
+        var top = cube.grouped.pop();
+        if(top === undefined) {
+            return;
+        }
+        if(top[0] !== openbrace.get(k)) {
+            return;
+        }
+        top += k;
+        if(cube.grouped.length > 0) {
+            cube.grouped[cube.grouped.length-1] += top;
+        } else {
+            if(cube.moves.length > 0 && cube.moves[cube.moves.length-1] === "/") {
+                cube.moves.pop();
+                top = "/"+top;
             }
-            if(top[0] !== openbrace.get(k)) {
-                return;
-            }
-            top += k;
-            if(cube.grouped.length > 0) {
-                cube.grouped[cube.grouped.length-1] += top;
-            } else {
-                if(cube.moves.length > 0 && cube.moves[cube.moves.length-1] === "/") {
-                    cube.moves.pop();
-                    top = "/"+top;
-                }
-                cube.moves.push(top);
-                apply(cube, top, 0);
-            }
+            cube.moves.push(top);
+            apply(cube, top, 0);
         }
     } else if(cube.grouped.length > 0) {
         cube.grouped[cube.grouped.length-1] += k;
     } else {
         // on enter, just reproduce the last move
-        if(k === "Enter" && cube.moves.length > 0) {
-            move = cube.moves[cube.moves.length-1];
+        if(k === "Enter") {
+            if(cube.moves.length > 0) {
+                move = cube.moves[cube.moves.length-1];
+                k =  move;    
+            } else {
+                return;
+            }
         } 
         while(cube.moves.length > 0 && cube.moves[cube.moves.length-1] === "/") {
             move = cube.moves.pop() + move;
@@ -335,6 +337,9 @@ function Move(cube: CubeState, event: KeyboardEvent) {
                 apply(cube, pop, 1);
                 move = pop + k;
             }
+        }
+        if(move === "Enter") {
+            return;
         }
         cube.moves.push(move);
         if(move != "/" && move != "") {
@@ -919,8 +924,6 @@ const CubeCanvas: React.FC = () => {
     const clickX = event.clientX - rect.left;
     const clickY = event.clientY - rect.top;
 
-    console.log(`Click detected at X:${clickX}, Y:${clickY}`);
-
     for (const [face, [faceX, faceY, size]] of placements.entries()) {
         // stickers are scaled by size and start at 2.0 and are 1x1 before scaling
         // let's hit on the 9x9 grid of stickers
@@ -931,6 +934,7 @@ const CubeCanvas: React.FC = () => {
         if (xlo <= clickX && clickX <= xhi &&
             ylo <= clickY && clickY <= yhi) {
             Turn(theCubeState, face);
+            theCubeState.moves.push(face);
             setCubeState({ ...theCubeState });
         }
     }
