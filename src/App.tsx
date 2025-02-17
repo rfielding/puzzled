@@ -5,7 +5,7 @@ function App() {
   return (
     <>
       <CubeCanvas />
-      <ul>
+      <ul className="left-align-list">
         <li>Face names are: right,up,front,down,left, and back</li>
         <li>turn faces: "r", "u", "f", "d", "l", "b", and "/" for negative turns like "/r", or "rrr"</li>
         <li>Turn whole cube: "R", "U", "F", "D", "L", "B"</li>
