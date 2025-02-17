@@ -10,6 +10,7 @@ interface CubeState {
     moves: string[]; // single character keys are tracked
     colors: Map<string,string>;
     grouped: string[];
+    execution: string;
 }
 
 function NewCubeState(): CubeState {
@@ -65,9 +66,11 @@ function NewCubeState(): CubeState {
             ["l", "r"],
             ["b", "f"],
         ]),
+        execution: "",
     };
 }
 
+var theCubeState = NewCubeState();
 
 
 function swap(cube: CubeState, a: string, b: string) {
@@ -172,17 +175,17 @@ var execute = function(cube: CubeState, move: Move, reverse: number) {
                 turn(cube, lk);
                 turn(cube, lk);
                 turn(cube, lk);
-                console.log("/"+move.face);
+                cube.execution +="/" + move.face;
             } else {
                 turn(cube, lk);
-                console.log(move.face);
+                cube.execution += "" + move.face;
             }
         }
     }
 }
 
 var apply = function(cube: CubeState, move: string, reverse: number) {
-    console.log("apply: "+reverse+" "+move);
+    //console.log("apply: "+reverse+" "+move);
     if(move.length > 0 && move[0] === "/") {
         move = move.substring(1);
         reverse++;
@@ -242,8 +245,9 @@ var apply = function(cube: CubeState, move: string, reverse: number) {
         }
     }
     var result = ms[0];
-    //console.log("execute: "+reverse+" "+move+" -> "+JSON.stringify(ms));
+    cube.execution = "->";
     execute(cube, result, reverse);
+    console.log("execution: "+cube.execution);
 }
 
 
@@ -340,28 +344,13 @@ function Move(cube: CubeState, event: KeyboardEvent) {
     }
 }
 
-var theCubeState = NewCubeState();
-
-function RenewCubeState() {
-    return {
-        adjacencies: theCubeState.adjacencies,
-        stickers: theCubeState.stickers,
-        facePeriod: theCubeState.facePeriod,
-        faceCount: theCubeState.faceCount,
-        moves: theCubeState.moves,
-        colors: theCubeState.colors,
-        opposites: theCubeState.opposites,
-        grouped: theCubeState.grouped,
-    };
-}
-
 const CubeCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [cubeState, setCubeState] = useState(RenewCubeState());
+  const [cubeState, setCubeState] = useState({...theCubeState});
 
   const updateCubeState = () => {
     // Placeholder: Here you'd update the cube's internal representation
-    setCubeState(() => (RenewCubeState()));
+    setCubeState(() => ({...cubeState}));
   };
   
   useEffect(() => {
@@ -833,8 +822,8 @@ const CubeCanvas: React.FC = () => {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     // Example 2D cube representation (top + front + right)
-    const size = 50;
-    ctx.lineWidth = 2;
+    const size = 40;
+    ctx.lineWidth = 1.0;
 
     if(cubeState.facePeriod === 4 && cubeState.faceCount === 6) {
         drawCubeView(ctx,size+10,size+10,size,new Map<string,string>([
@@ -890,14 +879,22 @@ const CubeCanvas: React.FC = () => {
             ["b","f"],
         ]));
 
-        ctx.font = "24px Arial";
+        ctx.font = "12px Monospace";
+        
+        // high-level moves
         ctx.fillStyle = "gray";
-        var lastChars = cubeState.moves.slice(-50).join("");
-        ctx.fillText(lastChars, 0*size, 10*size);
+        var lastChars = cubeState.moves.slice(-60).join(" ");
+        lastChars = lastChars.slice(-60)
+        ctx.fillText(lastChars, 0*size, 11.0*size);
 
+        // flattened out high level moves
+        ctx.fillStyle = "green";
+        ctx.fillText(cubeState.execution, 0*size, 10.4*size);
+
+        // composing high-level moves
         ctx.fillStyle = "yellow";
-        var grouped = cubeState.grouped.join("");
-        ctx.fillText(grouped, 0*size, 9.5*size);
+        var grouped = cubeState.grouped.join("").slice(-60);
+        ctx.fillText(grouped, 0*size, 9.7*size);
     }
 
   };
