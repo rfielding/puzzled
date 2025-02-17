@@ -1,5 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 
+interface CubeCanvasProps {
+    autoFocus?: boolean; // ✅ Add autoFocus prop
+}
+  
 
 interface CubeState {
     adjacencies: Map<string, string[]>;
@@ -352,7 +356,7 @@ function Move(cube: CubeState, event: KeyboardEvent) {
     }
 }
 
-const CubeCanvas: React.FC = () => {
+const CubeCanvas: React.FC<CubeCanvasProps> = ({autoFocus=false}) => {
   var theCubeState = NewCubeState();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [cubeState, setCubeState] = useState({...theCubeState});
@@ -365,6 +369,7 @@ const CubeCanvas: React.FC = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -375,8 +380,8 @@ const CubeCanvas: React.FC = () => {
         updateCubeState();
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    canvas.addEventListener("keydown", handleKeyDown);
+    return () => canvas.removeEventListener("keydown", handleKeyDown);
   }, [cubeState]); // ✅ Depend on cubeState to trigger updates
 
 
@@ -832,12 +837,12 @@ const CubeCanvas: React.FC = () => {
   const size = 40;
   const placements = new Map<string, number[]>(
     [
-        ["u", [2.75*size+10, -0.65*size, size/2]],
-        ["r", [6.6*size, 3.1*size, size/2]],
-        ["f", [size+10, size+10, size]],
-        ["d", [2.75*size+10, 6.5*size, size/2]],
-        ["l", [-0.6*size, 3.0*size, size/2]],
-        ["b", [2.6*size+6.9*size, 3.7*size, size/3]],
+        ["u", [20+2.75*size+10,      20+-0.65*size, size/2]],
+        ["r", [20+6.6*size,          20+3.1*size, size/2]],
+        ["f", [20+size+10,           20+size+10, size]],
+        ["d", [20+2.75*size+10,      20+6.5*size, size/2]],
+        ["l", [20+-0.6*size,         20+3.0*size, size/2]],
+        ["b", [20+2.6*size+6.9*size, 20+3.7*size, size/3]],
     ]
   );
 
@@ -956,10 +961,24 @@ useEffect(() => {
     };
 }, [canvasRef.current]); 
 
+  useEffect(() => {
+    if (autoFocus && canvasRef.current) {
+      canvasRef.current.focus();
+    }
+  }, [autoFocus]);
+
   return (
-    <canvas ref={canvasRef} width={550} height={510} style={{ border: "0px solid black" }} />
+    <canvas 
+      ref={canvasRef} 
+      tabIndex={0} 
+      width={500} 
+      height={510} 
+      style={{ border: "1px solid black" }}
+      onClick={() => canvasRef.current?.focus()}
+    />
   );
 };
+
 
 export default CubeCanvas;
 
