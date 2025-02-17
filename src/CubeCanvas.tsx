@@ -68,9 +68,6 @@ function NewCubeState(): CubeState {
     };
 }
 
-var theCubeState = NewCubeState();
-
-
 function swap(cube: CubeState, a: string, b: string) {
     var tmp = cube.stickers.get(a) ?? "black";
     cube.stickers.set(a, cube.stickers.get(b) ?? "black");
@@ -356,6 +353,7 @@ function Move(cube: CubeState, event: KeyboardEvent) {
 }
 
 const CubeCanvas: React.FC = () => {
+  var theCubeState = NewCubeState();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [cubeState, setCubeState] = useState({...theCubeState});
 
