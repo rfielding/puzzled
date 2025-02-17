@@ -11,7 +11,7 @@ interface CubeState {
     colors: Map<string,string>;
     grouped: string[];
     execution: string;
-}
+} 
 
 function NewCubeState(): CubeState {
     // counter clockwise adjacencies.
@@ -245,9 +245,8 @@ var apply = function(cube: CubeState, move: string, reverse: number) {
         }
     }
     var result = ms[0];
-    cube.execution = "->";
+    cube.execution = "";
     execute(cube, result, reverse);
-    console.log("execution: "+cube.execution);
 }
 
 
@@ -430,11 +429,12 @@ const CubeCanvas: React.FC = () => {
   // but for now, this is a few hours of work!
   const drawCubeView = (
     ctx: CanvasRenderingContext2D, 
-    x: number,
-    y: number,
-    size: number,
+    placements: number[],
     remap: Map<string,string>,
   ) => {
+    var x = placements[0];
+    var y = placements[1];
+    var size = placements[2];
     drawSticker(
         ctx, x,y, cubeState, remap,
         "flu",
@@ -818,15 +818,27 @@ const CubeCanvas: React.FC = () => {
     );
   };
 
+  // drawing AND hit testing
+  const size = 40;
+  const placements = new Map<string, number[]>(
+    [
+        ["u", [2.75*size+10, -0.65*size, size/2]],
+        ["r", [6.6*size, 3.1*size, size/2]],
+        ["f", [size+10, size+10, size]],
+        ["d", [2.75*size+10, 6.5*size, size/2]],
+        ["l", [-0.6*size, 3.0*size, size/2]],
+        ["b", [2.6*size+6.9*size, 3.7*size, size/3]],
+    ]
+  );
+
   const drawCube = (ctx: CanvasRenderingContext2D) => {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     // Example 2D cube representation (top + front + right)
-    const size = 40;
     ctx.lineWidth = 1.0;
 
     if(cubeState.facePeriod === 4 && cubeState.faceCount === 6) {
-        drawCubeView(ctx,size+10,size+10,size,new Map<string,string>([
+        drawCubeView(ctx, placements.get("f") as number[], new Map<string,string>([
             ["u","u"],
             ["r","r"],
             ["f","f"],
@@ -835,7 +847,7 @@ const CubeCanvas: React.FC = () => {
             ["b","b"],
         ]));
 
-        drawCubeView(ctx,2.75*size+10,-0.65*size,size/2,new Map<string,string>([
+        drawCubeView(ctx, placements.get("u") as number[], new Map<string,string>([
             ["u","b"],
             ["r","r"],
             ["f","u"],
@@ -844,7 +856,7 @@ const CubeCanvas: React.FC = () => {
             ["b","d"],
         ]));
 
-        drawCubeView(ctx,2.75*size+10,6.5*size,size/2,new Map<string,string>([
+        drawCubeView(ctx, placements.get("d") as number[], new Map<string,string>([
             ["u","f"],
             ["r","r"],
             ["f","d"],
@@ -853,7 +865,7 @@ const CubeCanvas: React.FC = () => {
             ["b","u"],
         ]));        
 
-        drawCubeView(ctx,-0.6*size,3.0*size,size/2,new Map<string,string>([
+        drawCubeView(ctx,placements.get("l") as number[],new Map<string,string>([
             ["u","u"],
             ["r","f"],
             ["f","l"],
@@ -861,7 +873,7 @@ const CubeCanvas: React.FC = () => {
             ["l","b"],
             ["b","r"],
         ]));
-        drawCubeView(ctx,6.5*size,3.0*size,size/2,new Map<string,string>([
+        drawCubeView(ctx,placements.get("r") as number[],new Map<string,string>([
             ["u","u"],
             ["r","b"],
             ["f","r"],
@@ -870,7 +882,7 @@ const CubeCanvas: React.FC = () => {
             ["b","l"],
         ]));
 
-        drawCubeView(ctx,2.6*size+6.5*size,3.5*size,size/3,new Map<string,string>([
+        drawCubeView(ctx,placements.get("b") as number[],new Map<string,string>([
             ["u","u"],
             ["r","l"],
             ["f","b"],
@@ -899,6 +911,41 @@ const CubeCanvas: React.FC = () => {
 
   };
 
+  const handleCanvasClick = (event: MouseEvent) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
+
+    console.log(`Click detected at X:${clickX}, Y:${clickY}`);
+
+    for (const [face, [faceX, faceY, size]] of placements.entries()) {
+        // stickers are scaled by size and start at 2.0 and are 1x1 before scaling
+        // let's hit on the 9x9 grid of stickers
+        var xlo = faceX + 2*size;
+        var ylo = faceY + 2*size;
+        var xhi = faceX + 5*size;
+        var yhi = faceY + 5*size;
+        if (xlo <= clickX && clickX <= xhi &&
+            ylo <= clickY && clickY <= yhi) {
+            Turn(theCubeState, face);
+            setCubeState({ ...theCubeState });
+        }
+    }
+};
+
+useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    canvas.addEventListener("mousedown", handleCanvasClick);
+
+    return () => {
+        canvas.removeEventListener("mousedown", handleCanvasClick);
+    };
+}, [canvasRef.current]); 
 
   return (
     <canvas ref={canvasRef} width={550} height={510} style={{ border: "1px solid black" }} />
