@@ -137,7 +137,6 @@ var executeBwd = function(cube: CubeState, move: Move, n: number, less:number) {
 }
 
 var execute = function(cube: CubeState, move: Move, reverse: number) {
-    // don't mutate anything while inside this loop!
     for(var c = 0; c < move.count; c++) {
         if(move.face === undefined && move.moves.length > 0) {
             var n = (move.reverse+reverse)%2;
@@ -164,7 +163,7 @@ var execute = function(cube: CubeState, move: Move, reverse: number) {
                     executeBwd(cube, move, n, 0);
                 }        
             }
-        } else if(move.face.length > 0) {
+        } else if(move.face !== undefined && move.face.length > 0) {
             var lk = move.face.toLowerCase();
             var turn = Turn;
             if( move.face === move.face.toUpperCase() ){
@@ -184,7 +183,6 @@ var execute = function(cube: CubeState, move: Move, reverse: number) {
 }
 
 var apply = function(cube: CubeState, move: string, reverse: number) {
-    //console.log("apply: "+reverse+" "+move);
     if(move.length > 0 && move[0] === "/") {
         move = move.substring(1);
         reverse++;
