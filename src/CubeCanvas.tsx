@@ -1,9 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef} from "react";
 
-interface CubeCanvasProps {
-    autoFocus?: boolean; // ✅ Add autoFocus prop
-}
-  
 
 interface CubeState {
     adjacencies: Map<string, string[]>;
@@ -885,102 +881,80 @@ function drawSticker(
 
   };
 
-const CubeCanvas: React.FC<CubeCanvasProps> = ({autoFocus=false}) => {
-  var theCubeState = NewCubeState();
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [cubeState, setCubeState] = useState({...theCubeState});
 
-  const updateCubeState = () => {
-    // Placeholder: Here you'd update the cube's internal representation
-    setCubeState(() => ({...cubeState}));
+  const CubeCanvas = ({ autoFocus = false }) => {
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const cubeState = useRef(NewCubeState());
+  
+    const size = 40;
+    const placements = new Map([
+      ["u", [20 + 2.75 * size + 10, 20 + -0.65 * size, size / 2]],
+      ["r", [20 + 6.6 * size, 20 + 3.1 * size, size / 2]],
+      ["f", [20 + size + 10, 20 + size + 10, size]],
+      ["d", [20 + 2.75 * size + 10, 20 + 6.5 * size, size / 2]],
+      ["l", [20 + -0.6 * size, 20 + 3.0 * size, size / 2]],
+      ["b", [20 + 2.6 * size + 6.9 * size, 20 + 3.7 * size, size / 3]],
+    ]);
+  
+    const draw = useCallback(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      drawCube(ctx, cubeState.current, placements, size);
+    }, []);
+  
+    const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLCanvasElement>) => {
+      Move(cubeState.current, event.nativeEvent);
+      draw(); // Directly re-draw after state change
+    }, []);
+  
+    const handleCanvasClick = useCallback((event: React.MouseEvent<HTMLCanvasElement>) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+  
+      const rect = canvas.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const clickY = event.clientY - rect.top;
+  
+      for (const [face, [faceX, faceY, size]] of placements.entries()) {
+        const xlo = faceX + 2 * size;
+        const ylo = faceY + 2 * size;
+        const xhi = faceX + 5 * size;
+        const yhi = faceY + 5 * size;
+        if (xlo <= clickX && clickX <= xhi && ylo <= clickY && clickY <= yhi) {
+          Turn(cubeState.current, face);
+          cubeState.current.moves.push(face);
+          draw(); // Directly re-draw after state change
+        }
+      }
+    }, []);
+  
+    return (
+      <canvas
+        ref={(el) => {
+          canvasRef.current = el;
+          if (el) {
+            draw(); 
+            if (autoFocus) {
+              el.focus(); 
+            }
+          }
+        }}
+        tabIndex={0} 
+        width={500}
+        height={510}
+        style={{ border: "1px solid black" }}
+        onClick={(e) => {
+          canvasRef.current?.focus();
+          handleCanvasClick(e);
+        }}
+        onKeyDown={handleKeyDown} // ✅ Directly attach the event
+      />
+    );
   };
   
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    drawCube(ctx, cubeState, placements, size); // Re-draw cube on state update
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-        Move(cubeState, event);
-        updateCubeState();
-    };
-
-    canvas.addEventListener("keydown", handleKeyDown);
-    return () => canvas.removeEventListener("keydown", handleKeyDown);
-  }, [cubeState]); // ✅ Depend on cubeState to trigger updates
-
-  // drawing AND hit testing
-  const size = 40;
-  const placements = new Map<string, number[]>(
-    [
-        ["u", [20+2.75*size+10,      20+-0.65*size, size/2]],
-        ["r", [20+6.6*size,          20+3.1*size, size/2]],
-        ["f", [20+size+10,           20+size+10, size]],
-        ["d", [20+2.75*size+10,      20+6.5*size, size/2]],
-        ["l", [20+-0.6*size,         20+3.0*size, size/2]],
-        ["b", [20+2.6*size+6.9*size, 20+3.7*size, size/3]],
-    ]
-  );
-
-
-  const handleCanvasClick = (event: MouseEvent) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const clickY = event.clientY - rect.top;
-
-    for (const [face, [faceX, faceY, size]] of placements.entries()) {
-        // stickers are scaled by size and start at 2.0 and are 1x1 before scaling
-        // let's hit on the 9x9 grid of stickers
-        var xlo = faceX + 2*size;
-        var ylo = faceY + 2*size;
-        var xhi = faceX + 5*size;
-        var yhi = faceY + 5*size;
-        if (xlo <= clickX && clickX <= xhi &&
-            ylo <= clickY && clickY <= yhi) {
-            Turn(theCubeState, face);
-            theCubeState.moves.push(face);
-            setCubeState({ ...theCubeState });
-        }
-    }
-};
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    canvas.addEventListener("mousedown", handleCanvasClick);
-
-    return () => {
-        canvas.removeEventListener("mousedown", handleCanvasClick);
-    };
-  }, [canvasRef.current]); 
-
-
-  useEffect(() => {
-    if (autoFocus && canvasRef.current) {
-      canvasRef.current.focus();
-    }
-  }, [autoFocus]);
-
-  return (
-    <canvas 
-      ref={canvasRef} 
-      tabIndex={0} 
-      width={500} 
-      height={510} 
-      style={{ border: "1px solid black" }}
-      onClick={() => canvasRef.current?.focus()}
-    />
-  );
-};
-
+  
 
 export default CubeCanvas;
 
