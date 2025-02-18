@@ -27,7 +27,7 @@ function NewCubeState(): CubeState {
         ["l", ["u", "b", "d", "f"]],
         ["b", ["u", "r", "d", "l"]],
     ]);
-    const facePeriod = adjacencies.get("u")?.length ?? 0; // Use .get() for Map lookup
+    const facePeriod = adjacencies.get("u")?.length as number; // Use .get() for Map lookup
     const faceCount = adjacencies.size; // Map has a .size property
     var stickers = new Map<string, string>();
     // from here, the code should not be 3x3x3 specific
@@ -73,8 +73,8 @@ function NewCubeState(): CubeState {
 }
 
 function swap(cube: CubeState, a: string, b: string) {
-    var tmp = cube.stickers.get(a) ?? "black";
-    cube.stickers.set(a, cube.stickers.get(b) ?? "black");
+    var tmp = cube.stickers.get(a) as string;
+    cube.stickers.set(a, cube.stickers.get(b) as string);
     cube.stickers.set(b, tmp);
 }
 
@@ -96,9 +96,9 @@ function Turn(cube: CubeState, face: string) {
 
 function TurnAll(cube: CubeState, face: string) {
     Turn(cube, face);
-    Turn(cube, cube.opposites.get(face) ?? "x");
-    Turn(cube, cube.opposites.get(face) ?? "x");
-    Turn(cube, cube.opposites.get(face) ?? "x");
+    Turn(cube, cube.opposites.get(face) as string);
+    Turn(cube, cube.opposites.get(face) as string);
+    Turn(cube, cube.opposites.get(face) as string);
 
     // rotate middle layer
     for(var n = 0; n < cube.facePeriod-1; n++) {
@@ -339,7 +339,7 @@ function Move(cube: CubeState, event: KeyboardEvent) {
         if("0" <= k && k <= "9") {
             // undo what is on the stack and redo it.
             if(cube.moves.length > 0) {
-                var pop = cube.moves.pop() ?? "";
+                var pop = cube.moves.pop() as string;
                 apply(cube, pop, 1);
                 move = pop + k;
             }
@@ -370,22 +370,20 @@ function drawSticker(
     x3: number,
     y3: number,
   ) {
-
-    // lol. allow cube rotations to be shown like this.
     if(sticker.length === 1) {
-        sticker = remap.get(sticker) ?? sticker;
+        sticker = remap.get(sticker) as string;
     } else if (sticker.length === 2) {
         var f1 = sticker[0];
         var f2 = sticker[1];
-        sticker = remap.get(f1) ?? f1;
-        sticker += remap.get(f2) ?? f2;
+        sticker = remap.get(f1) as string;
+        sticker += remap.get(f2) as string;
     } else if (sticker.length === 3) {  
         var f1 = sticker[0];
         var f2 = sticker[1];
         var f3 = sticker[2];
-        sticker = remap.get(f1) ?? f1;
-        sticker += remap.get(f2) ?? f2;
-        sticker += remap.get(f3) ?? f3;
+        sticker = remap.get(f1) as string;
+        sticker += remap.get(f2) as string;
+        sticker += remap.get(f3) as string;
     }
 
     var color = cube.stickers.get(sticker);
@@ -394,7 +392,7 @@ function drawSticker(
         console.error(cube.stickers);
     }
     ctx.strokeStyle = "black";
-    ctx.fillStyle = cube.colors.get(color ?? "gray") ?? "black";
+    ctx.fillStyle = cube.colors.get(color as string) as string;
     ctx.beginPath();
     ctx.moveTo(x+x0, y+y0);
     ctx.lineTo(x+x1, y+y1);
