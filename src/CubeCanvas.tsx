@@ -356,38 +356,7 @@ function Move(cube: CubeState, event: KeyboardEvent) {
     }
 }
 
-const CubeCanvas: React.FC<CubeCanvasProps> = ({autoFocus=false}) => {
-  var theCubeState = NewCubeState();
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [cubeState, setCubeState] = useState({...theCubeState});
-
-  const updateCubeState = () => {
-    // Placeholder: Here you'd update the cube's internal representation
-    setCubeState(() => ({...cubeState}));
-  };
-  
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    drawCube(ctx); // Re-draw cube on state update
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-        Move(cubeState, event);
-        updateCubeState();
-    };
-
-    canvas.addEventListener("keydown", handleKeyDown);
-    return () => canvas.removeEventListener("keydown", handleKeyDown);
-  }, [cubeState]); // ✅ Depend on cubeState to trigger updates
-
-
- 
-
-  const drawSticker = (
+function drawSticker(
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
@@ -402,7 +371,7 @@ const CubeCanvas: React.FC<CubeCanvasProps> = ({autoFocus=false}) => {
     y2: number,
     x3: number,
     y3: number,
-  ) => {
+  ) {
 
     // lol. allow cube rotations to be shown like this.
     if(sticker.length === 1) {
@@ -437,16 +406,18 @@ const CubeCanvas: React.FC<CubeCanvasProps> = ({autoFocus=false}) => {
     ctx.stroke();
   };
 
+
   // yup! just draw every single sticker.
   // if there is a short and explicit algorithm to 
   // draw cubes via a short algorithm, then it will
   // be easy to support other kinds of cubes.
   // but for now, this is a few hours of work!
-  const drawCubeView = (
+  function drawCubeView(
     ctx: CanvasRenderingContext2D, 
+    cubeState: CubeState,
     placements: number[],
     remap: Map<string,string>,
-  ) => {
+  ) {
     var x = placements[0];
     var y = placements[1];
     var size = placements[2];
@@ -833,27 +804,19 @@ const CubeCanvas: React.FC<CubeCanvasProps> = ({autoFocus=false}) => {
     );
   };
 
-  // drawing AND hit testing
-  const size = 40;
-  const placements = new Map<string, number[]>(
-    [
-        ["u", [20+2.75*size+10,      20+-0.65*size, size/2]],
-        ["r", [20+6.6*size,          20+3.1*size, size/2]],
-        ["f", [20+size+10,           20+size+10, size]],
-        ["d", [20+2.75*size+10,      20+6.5*size, size/2]],
-        ["l", [20+-0.6*size,         20+3.0*size, size/2]],
-        ["b", [20+2.6*size+6.9*size, 20+3.7*size, size/3]],
-    ]
-  );
-
-  const drawCube = (ctx: CanvasRenderingContext2D) => {
+  function drawCube(
+    ctx: CanvasRenderingContext2D, 
+    cubeState: CubeState,
+    placements: Map<string, number[]>,
+    size: number,
+) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     // Example 2D cube representation (top + front + right)
     ctx.lineWidth = 1.0;
 
     if(cubeState.facePeriod === 4 && cubeState.faceCount === 6) {
-        drawCubeView(ctx, placements.get("f") as number[], new Map<string,string>([
+        drawCubeView(ctx, cubeState, placements.get("f") as number[], new Map<string,string>([
             ["u","u"],
             ["r","r"],
             ["f","f"],
@@ -862,7 +825,7 @@ const CubeCanvas: React.FC<CubeCanvasProps> = ({autoFocus=false}) => {
             ["b","b"],
         ]));
 
-        drawCubeView(ctx, placements.get("u") as number[], new Map<string,string>([
+        drawCubeView(ctx, cubeState, placements.get("u") as number[], new Map<string,string>([
             ["u","b"],
             ["r","r"],
             ["f","u"],
@@ -871,7 +834,7 @@ const CubeCanvas: React.FC<CubeCanvasProps> = ({autoFocus=false}) => {
             ["b","d"],
         ]));
 
-        drawCubeView(ctx, placements.get("d") as number[], new Map<string,string>([
+        drawCubeView(ctx, cubeState, placements.get("d") as number[], new Map<string,string>([
             ["u","f"],
             ["r","r"],
             ["f","d"],
@@ -880,7 +843,7 @@ const CubeCanvas: React.FC<CubeCanvasProps> = ({autoFocus=false}) => {
             ["b","u"],
         ]));        
 
-        drawCubeView(ctx,placements.get("l") as number[],new Map<string,string>([
+        drawCubeView(ctx, cubeState, placements.get("l") as number[],new Map<string,string>([
             ["u","u"],
             ["r","f"],
             ["f","l"],
@@ -888,7 +851,7 @@ const CubeCanvas: React.FC<CubeCanvasProps> = ({autoFocus=false}) => {
             ["l","b"],
             ["b","r"],
         ]));
-        drawCubeView(ctx,placements.get("r") as number[],new Map<string,string>([
+        drawCubeView(ctx, cubeState, placements.get("r") as number[],new Map<string,string>([
             ["u","u"],
             ["r","b"],
             ["f","r"],
@@ -897,7 +860,7 @@ const CubeCanvas: React.FC<CubeCanvasProps> = ({autoFocus=false}) => {
             ["b","l"],
         ]));
 
-        drawCubeView(ctx,placements.get("b") as number[],new Map<string,string>([
+        drawCubeView(ctx, cubeState, placements.get("b") as number[],new Map<string,string>([
             ["u","u"],
             ["r","l"],
             ["f","b"],
@@ -926,6 +889,48 @@ const CubeCanvas: React.FC<CubeCanvasProps> = ({autoFocus=false}) => {
 
   };
 
+const CubeCanvas: React.FC<CubeCanvasProps> = ({autoFocus=false}) => {
+  var theCubeState = NewCubeState();
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [cubeState, setCubeState] = useState({...theCubeState});
+
+  const updateCubeState = () => {
+    // Placeholder: Here you'd update the cube's internal representation
+    setCubeState(() => ({...cubeState}));
+  };
+  
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    drawCube(ctx, cubeState, placements, size); // Re-draw cube on state update
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+        Move(cubeState, event);
+        updateCubeState();
+    };
+
+    canvas.addEventListener("keydown", handleKeyDown);
+    return () => canvas.removeEventListener("keydown", handleKeyDown);
+  }, [cubeState]); // ✅ Depend on cubeState to trigger updates
+
+  // drawing AND hit testing
+  const size = 40;
+  const placements = new Map<string, number[]>(
+    [
+        ["u", [20+2.75*size+10,      20+-0.65*size, size/2]],
+        ["r", [20+6.6*size,          20+3.1*size, size/2]],
+        ["f", [20+size+10,           20+size+10, size]],
+        ["d", [20+2.75*size+10,      20+6.5*size, size/2]],
+        ["l", [20+-0.6*size,         20+3.0*size, size/2]],
+        ["b", [20+2.6*size+6.9*size, 20+3.7*size, size/3]],
+    ]
+  );
+
+
   const handleCanvasClick = (event: MouseEvent) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -950,7 +955,7 @@ const CubeCanvas: React.FC<CubeCanvasProps> = ({autoFocus=false}) => {
     }
 };
 
-useEffect(() => {
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -959,7 +964,8 @@ useEffect(() => {
     return () => {
         canvas.removeEventListener("mousedown", handleCanvasClick);
     };
-}, [canvasRef.current]); 
+  }, [canvasRef.current]); 
+
 
   useEffect(() => {
     if (autoFocus && canvasRef.current) {
