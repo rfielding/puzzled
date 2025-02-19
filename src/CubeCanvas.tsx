@@ -255,6 +255,7 @@ function Move(cube: CubeState, event: KeyboardEvent) {
         "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
         "Backspace",
         "Enter",
+        "~",
     ].includes(event.key)) {
         return;
     }
@@ -263,6 +264,9 @@ function Move(cube: CubeState, event: KeyboardEvent) {
 
     var move = k;
     if(k === "Enter" && cube.grouped.length > 0) {
+        return;
+    }
+    if(k === "~" && cube.grouped.length > 0) {
         return;
     }
     if(k === "Backspace") {
@@ -317,6 +321,7 @@ function Move(cube: CubeState, event: KeyboardEvent) {
         cube.grouped[cube.grouped.length-1] += k;
     } else {
         // on enter, just reproduce the last move
+        // same as move ~1
         if(k === "Enter") {
             if(cube.moves.length > 0) {
                 move = cube.moves[cube.moves.length-1];
@@ -325,6 +330,27 @@ function Move(cube: CubeState, event: KeyboardEvent) {
                 return;
             }
         } 
+        // if it is a single digit, we look back for a ~
+        // only 1 digit supported.
+        if(("1" <= k && k <= "9") 
+            && cube.moves.length > 0 
+            && cube.moves[cube.moves.length-1] === "~") {
+            var n = parseInt(k);
+            cube.moves.pop(); // remove the ~
+            if(n < cube.moves.length) {
+                if(cube.moves.length > 0) {
+                    // select nth move back
+                    move = cube.moves[cube.moves.length-n];
+                    k =  move;    
+                } else {
+                    return;
+                }
+            }
+        }
+        if(k === "~") {
+            cube.moves.push("~");
+            return;
+        }
         while(cube.moves.length > 0 && cube.moves[cube.moves.length-1] === "/") {
             move = cube.moves.pop() + move;
         }
@@ -344,7 +370,7 @@ function Move(cube: CubeState, event: KeyboardEvent) {
             return;
         }
         cube.moves.push(move);
-        if(move != "/" && move != "") {
+        if(move != "/" && move != "" && move != "~") {
             apply(cube, move, 0);
         }
     }
