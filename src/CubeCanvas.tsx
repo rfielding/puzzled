@@ -134,7 +134,7 @@ var executeBwd = function(cube: CubeState, move: Move, n: number, less:number) {
 
 var execute = function(cube: CubeState, move: Move, reverse: number) {
     for(var c = 0; c < move.count; c++) {
-        if(move.face === undefined && move.moves.length > 0) {
+        if(move.face === undefined && move.moves !== undefined && move.moves.length > 0) {
             var n = (move.reverse+reverse)%2;
             if(move.isCommutator) {
                 if(n%2 === 0) {
