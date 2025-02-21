@@ -24,6 +24,9 @@ function App() {
                 <strong>Replay last moves:</strong> ~1 and Enter (last move), ~2 (2 moves back), up to ~9
               </li>
               <li>
+                Use Tab and Shift+Tab to switch between cubes (solve and plan cube).
+              </li>
+              <li>
                 <strong>Compound moves:</strong> &#123;rf&#125; = r f /r, [rf] = r f /r /f, &#123;f[ru]&#125;, [[fr]3u], [[fd]2u]
               </li>
               <li>
