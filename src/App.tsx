@@ -40,7 +40,7 @@ function App() {
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .help-modal {
           position: fixed;
           top: 50%;
