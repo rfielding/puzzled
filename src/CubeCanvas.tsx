@@ -218,6 +218,9 @@ var apply = function(cube: CubeState, move: string, reverse: number) {
             }
             ms[ms.length-1].moves.push({face:move[i],reverse:n,count:1} as Move);
         } else if([")","}","]"].includes(move[i])) {
+            if(ms.length === undefined || ms.length === 0 ||  ms[ms.length-1].moves === undefined) {
+                return;
+            }
             var top = ms.pop() as Move;
             if(ms[ms.length-1].moves === undefined) {
                 ms[ms.length-1].moves = [] as Move[]
@@ -294,17 +297,31 @@ function Move(cube: CubeState, event: KeyboardEvent) {
     } else if(k === "{" || k === "(" || k === "[") {
         cube.grouped.push(k);
     } else if(k === "}" || k === ")" || k === "]") {
+        // be a little loose about typos, and simply correct them.
+        // any close brace will be fixed. also, only return before
+        // mutating anything.
+        if(cube.grouped === undefined || cube.grouped.length === 0) {
+            return
+        }
         var openbrace = new Map<string,string>([
             [")","("],
             ["}","{"],
             ["]","["],
         ]);
-        var top = cube.grouped.pop();
-        if(top === undefined) {
-            return;
-        }
+        var closebrace = new Map<string,string>([
+            ["(",")"],
+            ["{","}"],
+            ["[","]"],
+        ]);
+        var top = cube.grouped.pop() as string;
         if(top[0] !== openbrace.get(k)) {
-            return;
+            // just make braces match in this case.
+            k = closebrace.get(top[0]) as string;
+            // give up if it is undefined
+            if(k === undefined) {
+                cube.grouped.push(top);
+                return;
+            }
         }
         top += k;
         if(cube.grouped.length > 0) {
