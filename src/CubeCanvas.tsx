@@ -1,4 +1,4 @@
-import React, { useCallback, useRef} from "react";
+import React, { useCallback, useRef, useState} from "react";
 
 
 interface CubeState {
@@ -169,10 +169,10 @@ var execute = function(cube: CubeState, move: Move, reverse: number) {
                 turn(cube, lk);
                 turn(cube, lk);
                 turn(cube, lk);
-                cube.execution +="/" + move.face;
+                cube.execution +=" /" + move.face;
             } else {
                 turn(cube, lk);
-                cube.execution += "" + move.face;
+                cube.execution += " " + move.face;
             }
         }
     }
@@ -905,29 +905,16 @@ function drawSticker(
         ]));
 
         ctx.font = "12px Monospace";
-        
-        // high-level moves
-        ctx.fillStyle = "gray";
-        var lastChars = cubeState.moves.slice(-60).join(" ");
-        lastChars = lastChars.slice(-60)
-        ctx.fillText(lastChars, 0*size, 11.0*size);
-
-        // flattened out high level moves
-        ctx.fillStyle = "green";
-        ctx.fillText(cubeState.execution, 0*size, 10.4*size);
-
-        // composing high-level moves
-        ctx.fillStyle = "yellow";
-        var grouped = cubeState.grouped.join("").slice(-60);
-        ctx.fillText(grouped, 0*size, 9.7*size);
     }
-
   };
 
 
   const CubeCanvas = ({ autoFocus = false }) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const cubeState = useRef(NewCubeState());
+    const [execution,setExecution] = useState("");
+    const [moves,setMoves] = useState("");
+    const [grouped,setGrouped] = useState("");
   
     const size = 40;
     const placements = new Map([
@@ -947,8 +934,15 @@ function drawSticker(
       drawCube(ctx, cubeState.current, placements, size);
     }, []);
   
+    const updateExecution = () => {
+        setExecution(cubeState.current.execution);
+        setMoves(cubeState.current.moves.join(" "));
+        setGrouped(cubeState.current.grouped.join(" "));
+    };
+
     const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLCanvasElement>) => {
       Move(cubeState.current, event.nativeEvent);
+      updateExecution();
       draw(); // Directly re-draw after state change
     }, []);
   
@@ -971,9 +965,11 @@ function drawSticker(
           draw(); // Directly re-draw after state change
         }
       }
+      updateExecution();
     }, []);
   
     return (
+      <>
       <canvas
         ref={(el) => {
           canvasRef.current = el;
@@ -986,14 +982,44 @@ function drawSticker(
         }}
         tabIndex={0} 
         width={500}
-        height={510}
-        style={{ border: "1px solid black" }}
+        height={420}
+        style={{ 
+            border: "0px solid black"
+        }}
         onClick={(e) => {
           canvasRef.current?.focus();
           handleCanvasClick(e);
         }}
-        onKeyDown={handleKeyDown} // ✅ Directly attach the event
+        onKeyDown={handleKeyDown}
       />
+      <br/>
+      Plan: (with parenthesis, or brackets) <input
+        tabIndex={-1}
+        style={{ 
+            width: "100%"
+        }}
+        value={grouped}
+        readOnly 
+        />
+      <br/>
+      Moves: (plan result) <input
+        tabIndex={-1}
+        style={{ 
+            width: "100%"
+        }}
+        value={execution}
+        readOnly
+        />
+      <br/>
+      Result: (resulting cube) <textarea
+        tabIndex={-1}
+        style={{
+            width: "100%"
+        }}
+        value={moves}
+        readOnly
+        />
+      </>
     );
   };
   

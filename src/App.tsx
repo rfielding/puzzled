@@ -15,6 +15,7 @@ function App() {
           <div className="help-content">
             <h2>CubeCanvas Help</h2>
             <ul className="left-align-list">
+              <li>Select a cube to type moves with the keyboard</li>
               <li><strong>Face names:</strong> right, up, front, down, left, back</li>
               <li><strong>Turn faces:</strong> "r", "u", "f", "d", "l", "b"</li>
               <li><strong>Negative turns:</strong> Use "/" (e.g., "/r" or "rrr")</li>
@@ -72,9 +73,9 @@ function App() {
         }
       `}</style>
       <br/>
-      <CubeCanvas autoFocus={true} />
+      Main Cube:<br/> <CubeCanvas autoFocus={true} />
       <br />
-      <CubeCanvas />
+      Scratch Cube:<br/> <CubeCanvas />
     </>
   );
 }
