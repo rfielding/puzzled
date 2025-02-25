@@ -2,14 +2,23 @@ import React, { useCallback, useRef, useState} from "react";
 
 
 interface CubeState {
+    // the most fundamental thing about this cube
     adjacencies: Map<string, string[]>;
+    // calculate opposite faces to facilitate whole cube turns
     opposites: Map<string, string>;
+    // moved around the cube. its main state.
     stickers: Map<string, string>;
+    // hardcoded for this shape
     facePeriod: number;
+    // hardcoded for this shape
     faceCount: number;
-    moves: string[]; // single character keys are tracked
+    // sequence of moves executed atomically
+    moves: string[];
+    // standard cube colors
     colors: Map<string,string>;
+    // we are planning a compound move here
     grouped: string[];
+    // the sequence of moves executed recently
     execution: string;
 } 
 
@@ -1001,7 +1010,7 @@ function drawSticker(
         readOnly 
         />
       <br/>
-      Moves: (plan result) <input
+      Moves: (last executed) <input
         tabIndex={-1}
         style={{ 
             width: "100%"
