@@ -843,7 +843,6 @@ function drawSticker(
     ctx: CanvasRenderingContext2D, 
     cubeState: CubeState,
     placements: Map<string, number[]>,
-    size: number,
 ) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -931,7 +930,7 @@ function drawSticker(
       if (!canvas) return;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      drawCube(ctx, cubeState.current, placements, size);
+      drawCube(ctx, cubeState.current, placements);
     }, []);
   
     const updateExecution = () => {
